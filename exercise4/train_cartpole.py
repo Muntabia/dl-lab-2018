@@ -42,17 +42,24 @@ def run_episode(env, agent, deterministic, do_training=True, rendering=False, ma
 
 def train_online(env, agent, num_episodes, model_dir="./models_cartpole", tensorboard_dir="./tensorboard"):
     # separate the training runs from each other
+    # create result and model folders
+    if not os.path.exists(model_dir):
+        os.mkdir(model_dir)
+    # separate each run from another within tensorboard
     run = 0
-    while os.path.exists(model_dir + 'run{}'.format(run)):
-        run += 1
-    model_dir += 'run{}'.format(run)
-    tensorboard_dir += 'run{}'.format(run)
-    os.mkdir(model_dir)
+    while True:
+        if os.path.exists(tensorboard_dir + "/run{}".format(run)):
+            run += 1
+        else:
+            #tensorboard_dir += "/run{}".format(run)
+            model_dir += "/run{}".format(run)
+            os.makedirs(model_dir, exist_ok=True)
+            break
 
  
     print("... train agent")
 
-    tensorboard = Evaluation(os.path.join(tensorboard_dir, "train"), ["episode_reward", "a_0", "a_1"])
+    tensorboard = Evaluation(os.path.join(tensorboard_dir, "/train"), ["episode_reward", "a_0", "a_1"])
 
     # training
     for i in range(num_episodes):
