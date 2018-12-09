@@ -14,7 +14,7 @@ class DQNAgent:
             num_actions: Number of actions of the environment.
             discount_factor: gamma, discount factor of future rewards.
             batch_size: Number of samples per batch.
-            epsilon: Chance to sample a random action. Float betwen 0 and 1.
+            epsilon: Chance to sample a random action. Float between 0 and 1.
         """
         self.Q = Q      
         self.Q_target = Q_target
@@ -34,7 +34,6 @@ class DQNAgent:
 
         self.saver = tf.train.Saver()
 
-
     def train(self, state, action, next_state, reward, terminal):
         """
         This method stores a transition to the replay buffer and updates the Q networks.
@@ -42,14 +41,21 @@ class DQNAgent:
 
         # TODO:
         # 1. add current transition to replay buffer
-        # 2. sample next batch and perform batch update: 
+        self.replay_buffer.add_transition(state, action, next_state, reward, terminal)
+        # 2. sample next batch and perform batch update:
+        batch_states, batch_actions, batch_next_states, batch_rewards, batch_dones = self.replay_buffer.next_batch(self.batch_size)
         #       2.1 compute td targets: 
         #              td_target =  reward + discount * argmax_a Q_target(next_state_batch, a)
+        targets = batch_rewards + self.discount_factor * np.max(self.Q_target.predict(self.sess, batch_next_states), axis=1)
         #       2.2 update the Q network
         #              self.Q.update(...)
+        loss = self.Q.update(self.sess, batch_states, batch_actions, targets)
         #       2.3 call soft update for target network
         #              self.Q_target.update(...)
-   
+        self.Q_target.update(self.sess)
+
+        return loss
+
 
     def act(self, state, deterministic):
         """
@@ -63,17 +69,17 @@ class DQNAgent:
         r = np.random.uniform()
         if deterministic or r > self.epsilon:
             # TODO: take greedy action (argmax)
-            # action_id = ...
+            state = state[np.newaxis,...]
+            a_pred = self.Q.predict(self.sess, state)
+            action_id = np.argmax(a_pred)
         else:
-
             # TODO: sample random action
             # Hint for the exploration in CarRacing: sampling the action from a uniform distribution will probably not work. 
             # You can sample the agents actions with different probabilities (need to sum up to 1) so that the agent will prefer to accelerate or going straight.
             # To see how the agent explores, turn the rendering in the training on and look what the agent is doing.
-            # action_id = ...
+            action_id = np.random.randint(0, self.num_actions)
           
         return action_id
-
 
     def load(self, file_name):
         self.saver.restore(self.sess, file_name)
