@@ -59,7 +59,7 @@ def train_online(env, agent, num_episodes, model_dir="./models_cartpole", tensor
  
     print("... train agent")
 
-    tensorboard = Evaluation(os.path.join(tensorboard_dir, "/train"), ["episode_reward", "a_0", "a_1"])
+    tensorboard = Evaluation(os.path.join(tensorboard_dir, "train"), ["episode_reward", "a_0", "a_1"])
 
     # training
     for i in range(num_episodes):
