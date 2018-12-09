@@ -15,4 +15,4 @@ class EpisodeStats:
 
     def get_action_usage(self, action_id):
         ids = np.array(self.actions_ids)
-        return (len(ids[ids == action_id]) / len(ids))
+        return len(ids[ids == action_id]) / len(ids)
