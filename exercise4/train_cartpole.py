@@ -65,7 +65,6 @@ def train_online(env, agent, num_episodes, model_dir="./models_cartpole", tensor
 
     # training
     for i in range(num_episodes):
-        print("episode: ",i)
         stats = run_episode(env, agent, deterministic=False, do_training=True)
         tensorboard.write_episode_data(i, eval_dict={  "episode_reward" : stats.episode_reward, 
                                                                 "a_0" : stats.get_action_usage(0),
@@ -79,6 +78,7 @@ def train_online(env, agent, num_episodes, model_dir="./models_cartpole", tensor
        
         # store model every 100 episodes and in the end.
         if i % 100 == 0 or i >= (num_episodes - 1):
+            print("episode: ",i)
             agent.saver.save(agent.sess, os.path.join(model_dir, "dqn_agent.ckpt"))
    
     tensorboard.close_session()
@@ -100,5 +100,5 @@ if __name__ == "__main__":
     # 2. init DQNAgent (see dqn/dqn_agent.py)
     DQNAgent = DQNAgent(Q, Q_target, num_actions)
     # 3. train DQN agent with train_online(...)
-    train_online(env, DQNAgent, num_episodes=1000)
+    train_online(env, DQNAgent, num_episodes=100000)
  
