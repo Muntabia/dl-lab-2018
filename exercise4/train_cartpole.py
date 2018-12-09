@@ -41,8 +41,14 @@ def run_episode(env, agent, deterministic, do_training=True, rendering=False, ma
     return stats
 
 def train_online(env, agent, num_episodes, model_dir="./models_cartpole", tensorboard_dir="./tensorboard"):
-    if not os.path.exists(model_dir):
-        os.mkdir(model_dir)  
+    # separate the training runs from each other
+    run = 0
+    while os.path.exists(model_dir + 'run{}'.format(run)):
+        run += 1
+    model_dir += 'run{}'.format(run)
+    tensorboard_dir += 'run{}'.format(run)
+    os.mkdir(model_dir)
+
  
     print("... train agent")
 
@@ -58,7 +64,9 @@ def train_online(env, agent, num_episodes, model_dir="./models_cartpole", tensor
 
         # TODO: evaluate your agent once in a while for some episodes using run_episode(env, agent, deterministic=True, do_training=False) to 
         # check its performance with greedy actions only. You can also use tensorboard to plot the mean episode reward.
-        # ...
+        if i % 10 == 0:
+            stats = run_episode(env, agent, deterministic=True, do_training=False)
+            #tensorboard.write_episode_data(i, eval_dict={"loss": stats.episode_loss})
        
         # store model every 100 episodes and in the end.
         if i % 100 == 0 or i >= (num_episodes - 1):
@@ -74,9 +82,14 @@ if __name__ == "__main__":
     # Hint: CartPole is considered solved when the average reward is greater than or equal to 195.0 over 100 consecutive trials.
 
     env = gym.make("CartPole-v0").unwrapped
-
+    state_dim = 4
+    num_actions = 2
     # TODO: 
     # 1. init Q network and target network (see dqn/networks.py)
+    Q = NeuralNetwork(state_dim, num_actions)
+    Q_target = TargetNetwork(state_dim, num_actions)
     # 2. init DQNAgent (see dqn/dqn_agent.py)
+    DQNAgent = DQNAgent(Q, Q_target, num_actions)
     # 3. train DQN agent with train_online(...)
+    train_online(env, DQNAgent, num_episodes=1000)
  
