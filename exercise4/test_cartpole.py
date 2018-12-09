@@ -11,12 +11,16 @@ np.random.seed(0)
 
 if __name__ == "__main__":
 
-    env = gym.make("CartPole-v0").unwrapped
+    #env = gym.make("CartPole-v0").unwrapped
+    #state_dim = 4
+    #num_actions = 2
+    
+    env = gym.make("MountainCar-v0").unwrapped
+    state_dim = 2
+    num_actions = 3
 
     # TODO: load DQN agent
     # ...
-    state_dim = 4
-    num_actions = 2
     Q = NeuralNetwork(state_dim, num_actions)
     Q_target = TargetNetwork(state_dim, num_actions)
     agent = DQNAgent(Q, Q_target, num_actions)

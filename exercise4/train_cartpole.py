@@ -7,7 +7,7 @@ from dqn.networks import NeuralNetwork, TargetNetwork
 from utils import EpisodeStats
 
 
-def run_episode(env, agent, deterministic, do_training=True, rendering=False, max_timesteps=1000):
+def run_episode(env, agent, deterministic, do_training=True, rendering=True, max_timesteps=1000):
     """
     This methods runs one episode for a gym environment. 
     deterministic == True => agent executes only greedy actions according the Q function approximator (no random actions).
@@ -90,9 +90,14 @@ if __name__ == "__main__":
     # https://github.com/openai/gym/wiki/CartPole-v0
     # Hint: CartPole is considered solved when the average reward is greater than or equal to 195.0 over 100 consecutive trials.
 
-    env = gym.make("CartPole-v0").unwrapped
-    state_dim = 4
-    num_actions = 2
+    #env = gym.make("CartPole-v0").unwrapped
+    #state_dim = 4
+    #num_actions = 2
+    
+    env = gym.make("MountainCar-v0").unwrapped
+    state_dim = 2
+    num_actions = 3
+    
     # TODO: 
     # 1. init Q network and target network (see dqn/networks.py)
     Q = NeuralNetwork(state_dim, num_actions)
