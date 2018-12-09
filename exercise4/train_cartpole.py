@@ -45,6 +45,8 @@ def train_online(env, agent, num_episodes, model_dir="./models_cartpole", tensor
     # create result and model folders
     if not os.path.exists(model_dir):
         os.mkdir(model_dir)
+    if not os.path.exists(tensorboard_dir):
+        os.mkdir(tensorboard_dir)
     # separate each run from another within tensorboard
     run = 0
     while True:
