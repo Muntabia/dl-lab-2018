@@ -47,10 +47,12 @@ class DQNAgent:
         #       2.1 compute td targets: 
         #              td_target =  reward + discount * argmax_a Q_target(next_state_batch, a)
         # q learning
-        targets = batch_rewards + self.discount_factor * np.max(self.Q_target.predict(self.sess, batch_next_states), axis=1)
+        targets = batch_rewards
+        targets[np.logical_not(batch_dones)] =+ self.discount_factor * np.max(self.Q_target.predict(self.sess, batch_next_states), axis=1)[np.logical_not(batch_dones)]
         # double q learning
         #q_actions = np.argmax(self.Q.predict(self.sess, batch_next_states), axis=1)
-        #targets = batch_rewards + self.discount_factor * self.Q_target.predict(self.sess, batch_next_states)[np.arange(self.batch_size), q_actions]
+        #targets = batch_rewards
+        #targets[np.logical_not(batch_dones)] =+ self.discount_factor * self.Q_target.predict(self.sess, batch_next_states)[np.arange(self.batch_size), q_actions][np.logical_not(batch_dones)]
         #       2.2 update the Q network
         #              self.Q.update(...)
         loss = self.Q.update(self.sess, batch_states, batch_actions, targets)
