@@ -20,7 +20,7 @@ class ReplayBuffer:
         This method adds a transition to the replay buffer.
         If the buffer is full, first added actions will be deleted.
         """
-        if(len(self._data.states) < self.buffer_size):
+        if len(self._data.states) < self.buffer_size:
             self._data.states.append(state)
             self._data.actions.append(action)
             self._data.next_states.append(next_state)

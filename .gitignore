@@ -1,0 +1,15 @@
+
+exercise4/.idea/workspace.xml
+exercise4/.idea/vcs.xml
+exercise4/.idea/modules.xml
+exercise4/.idea/misc.xml
+exercise4/.idea/inspectionProfiles/Project_Default.xml
+exercise4/.idea/exercise4.iml
+exercise4/.idea/dictionaries/Cheffe.xml
+*.CHEFFESPC
+*.pyc
+exercise4/models_cartpole/run0/checkpoint
+exercise4/models_cartpole/run0/dqn_agent.ckpt.data-00000-of-00001
+exercise4/models_cartpole/run0/dqn_agent.ckpt.meta
+exercise4/models_cartpole/run0/dqn_agent.ckpt.index
+exercise4/results/cartpole_results_dqn-20181209-192900.json
