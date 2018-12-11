@@ -65,6 +65,7 @@ def train_online(env, agent, num_episodes, model_dir="./models_cartpole", tensor
 
     # training
     for i in range(num_episodes):
+        print("episode: ", i)
         stats = run_episode(env, agent, deterministic=False, do_training=True)
         tensorboard.write_episode_data(i, eval_dict={  "episode_reward" : stats.episode_reward, 
                                                                 "a_0" : stats.get_action_usage(0),
@@ -72,13 +73,12 @@ def train_online(env, agent, num_episodes, model_dir="./models_cartpole", tensor
 
         # TODO: evaluate your agent once in a while for some episodes using run_episode(env, agent, deterministic=True, do_training=False) to 
         # check its performance with greedy actions only. You can also use tensorboard to plot the mean episode reward.
-        if i % 10 == 0:
+        if i % 100 == 0:
             stats = run_episode(env, agent, deterministic=True, do_training=False)
             #tensorboard.write_episode_data(i, eval_dict={"loss": stats.episode_loss})
        
         # store model every 100 episodes and in the end.
-        if i % 100 == 0 or i >= (num_episodes - 1):
-            print("episode: ",i)
+        if i % 1000 == 0 or i >= (num_episodes - 1):
             agent.saver.save(agent.sess, os.path.join(model_dir, "dqn_agent.ckpt"))
    
     tensorboard.close_session()
