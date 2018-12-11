@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import gym
 from dqn.agent import DQNAgent
-from train_carracingimport run_episode
+from train_carracing import run_episode
 from dqn.networks import *
 import numpy as np
 
