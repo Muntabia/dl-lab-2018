@@ -11,20 +11,20 @@ np.random.seed(0)
 
 if __name__ == "__main__":
 
-    #env = gym.make("CartPole-v0").unwrapped
-    #state_dim = 4
-    #num_actions = 2
+    env = gym.make("CartPole-v0").unwrapped
+    state_dim = 4
+    num_actions = 2
     
-    env = gym.make("MountainCar-v0").unwrapped
-    state_dim = 2
-    num_actions = 3
+    #env = gym.make("MountainCar-v0").unwrapped
+    #state_dim = 2
+    #num_actions = 3
 
     # TODO: load DQN agent
     # ...
     Q = NeuralNetwork(state_dim, num_actions)
     Q_target = TargetNetwork(state_dim, num_actions)
     agent = DQNAgent(Q, Q_target, num_actions)
-    agent.saver.restore(agent.sess, os.path.join("./models_cartpole" + "/run{}".format(0), "dqn_agent.ckpt"))
+    agent.saver.restore(agent.sess, os.path.join("./models_cartpole", "dqn_agent.ckpt"))
  
     n_test_episodes = 15
 
