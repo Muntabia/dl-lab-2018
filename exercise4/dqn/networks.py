@@ -55,7 +55,7 @@ class NeuralNetwork():
     def boltzmann(self, sess, state, tau):
         a_probs = sess.run(self.prediction_dist, feed_dict={self.states_: state, self.tau_: tau})
         a_value = np.random.choice(a_probs[0], p=a_probs[0])
-        return np.argmax(a_value)
+        return np.argmax(a_value == a_probs[0])
 
 
     def update(self, sess, states, actions, targets):
