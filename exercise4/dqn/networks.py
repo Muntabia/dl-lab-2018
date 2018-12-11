@@ -20,11 +20,13 @@ class NeuralNetwork():
         self.states_ = tf.placeholder(tf.float32, shape=[None, state_dim])
         self.actions_ = tf.placeholder(tf.int32, shape=[None])                  # Integer id of which action was selected
         self.targets_ = tf.placeholder(tf.float32,  shape=[None])               # The TD target value
+        self.tau_ = tf.placeholder(shape=None, dtype=tf.float32)                 # needed for Boltzmann exploration
 
         # network
         fc1 = tf.layers.dense(self.states_, hidden, tf.nn.relu)
         fc2 = tf.layers.dense(fc1, hidden, tf.nn.relu)
         self.predictions = tf.layers.dense(fc2, num_actions)
+        self.prediction_dist = tf.nn.softmax(self.predictions / self.tau_)
 
         # Get the predictions for the chosen actions only
         batch_size = tf.shape(self.states_)[0]
@@ -49,6 +51,11 @@ class NeuralNetwork():
         """
         prediction = sess.run(self.predictions, { self.states_: states })
         return prediction
+
+    def boltzmann(self, sess, state, tau):
+        a_probs = sess.run(self.prediction_dist, feed_dict={self.states_: state, self.tau_: tau})
+        a_value = np.random.choice(a_probs[0], p=a_probs[0])
+        return np.argmax(a_value)
 
 
     def update(self, sess, states, actions, targets):

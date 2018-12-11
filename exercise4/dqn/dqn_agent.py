@@ -4,7 +4,8 @@ from dqn.replay_buffer import ReplayBuffer
 
 class DQNAgent:
 
-    def __init__(self, Q, Q_target, num_actions, discount_factor=0.99, batch_size=64, epsilon=0.05):
+    def __init__(self, Q, Q_target, num_actions, discount_factor=0.99, batch_size=64, epsilon=0.05,
+                 exploration_type='random'):
         """
          Q-Learning agent for off-policy TD control using Function Approximation.
          Finds the optimal greedy policy while following an epsilon-greedy policy.
@@ -20,6 +21,7 @@ class DQNAgent:
         self.Q_target = Q_target
         
         self.epsilon = epsilon
+        self.exploration_type = exploration_type
 
         self.num_actions = num_actions
         self.batch_size = batch_size
@@ -83,7 +85,14 @@ class DQNAgent:
             # Hint for the exploration in CarRacing: sampling the action from a uniform distribution will probably not work. 
             # You can sample the agents actions with different probabilities (need to sum up to 1) so that the agent will prefer to accelerate or going straight.
             # To see how the agent explores, turn the rendering in the training on and look what the agent is doing.
-            action_id = np.random.randint(0, self.num_actions)
+            if self.exploration_type=='e-annealing':
+                raise NotImplementedError
+            elif self.exploration_type=='boltzmann':
+                state = state[np.newaxis, ...]
+                tau = 0.5
+                action_id = self.Q.boltzmann(self.sess, state, tau)
+            else:
+                action_id = np.random.randint(0, self.num_actions)
           
         return action_id
 
