@@ -5,7 +5,7 @@ from dqn.replay_buffer import ReplayBuffer
 class DQNAgent:
 
     def __init__(self, Q, Q_target, num_actions, discount_factor=0.99, batch_size=64, epsilon=0.05,
-                 exploration_type='random'):
+                 exploration_type='boltzmann'):
         """
          Q-Learning agent for off-policy TD control using Function Approximation.
          Finds the optimal greedy policy while following an epsilon-greedy policy.
@@ -50,11 +50,11 @@ class DQNAgent:
         #              td_target =  reward + discount * argmax_a Q_target(next_state_batch, a)
         # q learning
         targets = batch_rewards
-        targets[np.logical_not(batch_dones)] =+ self.discount_factor * np.max(self.Q_target.predict(self.sess, batch_next_states), axis=1)[np.logical_not(batch_dones)]
+        targets[np.logical_not(batch_dones)] += self.discount_factor * np.max(self.Q_target.predict(self.sess, batch_next_states), axis=1)[np.logical_not(batch_dones)]
         # double q learning
         #q_actions = np.argmax(self.Q.predict(self.sess, batch_next_states), axis=1)
         #targets = batch_rewards
-        #targets[np.logical_not(batch_dones)] =+ self.discount_factor * self.Q_target.predict(self.sess, batch_next_states)[np.arange(self.batch_size), q_actions][np.logical_not(batch_dones)]
+        #targets[np.logical_not(batch_dones)] += self.discount_factor * self.Q_target.predict(self.sess, batch_next_states)[np.arange(self.batch_size), q_actions][np.logical_not(batch_dones)]
         #       2.2 update the Q network
         #              self.Q.update(...)
         loss = self.Q.update(self.sess, batch_states, batch_actions, targets)
@@ -75,7 +75,7 @@ class DQNAgent:
             action id
         """
         r = np.random.uniform()
-        if deterministic or r > self.epsilon:
+        if deterministic or (self.exploration_type=='random' and r > self.epsilon):
             # TODO: take greedy action (argmax)
             state = state[np.newaxis,...]
             a_pred = self.Q.predict(self.sess, state)

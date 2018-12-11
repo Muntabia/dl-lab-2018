@@ -14,3 +14,7 @@ exercise4/models_cartpole/run0/dqn_agent.ckpt.meta
 exercise4/models_cartpole/run0/dqn_agent.ckpt.index
 exercise4/results/cartpole_results_dqn-20181209-192900.json
 *.json
+*.data-00000-of-00001
+exercise4/models_cartpole/dqn_agent.ckpt.index
+*.meta
+exercise4/models_cartpole/checkpoint
