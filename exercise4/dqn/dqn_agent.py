@@ -4,7 +4,7 @@ from dqn.replay_buffer import ReplayBuffer
 
 class DQNAgent:
 
-    def __init__(self, Q, Q_target, num_actions, discount_factor=0.99, batch_size=64, epsilon=0.05,
+    def __init__(self, Q, Q_target, num_actions, discount_factor=0.99, batch_size=64, epsilon=0.95,
                  exploration_type='boltzmann'):
         """
          Q-Learning agent for off-policy TD control using Function Approximation.
@@ -48,10 +48,10 @@ class DQNAgent:
         batch_states, batch_actions, batch_next_states, batch_rewards, batch_dones = self.replay_buffer.next_batch(self.batch_size)
         #       2.1 compute td targets: 
         #              td_target =  reward + discount * argmax_a Q_target(next_state_batch, a)
-        # q learning
-        targets = batch_rewards
+        """q learning"""
+        targets = batch_rewards.astype(np.float32)
         targets[np.logical_not(batch_dones)] += self.discount_factor * np.max(self.Q_target.predict(self.sess, batch_next_states), axis=1)[np.logical_not(batch_dones)]
-        # double q learning
+        """double q learning"""
         #q_actions = np.argmax(self.Q.predict(self.sess, batch_next_states), axis=1)
         #targets = batch_rewards
         #targets[np.logical_not(batch_dones)] += self.discount_factor * self.Q_target.predict(self.sess, batch_next_states)[np.arange(self.batch_size), q_actions][np.logical_not(batch_dones)]
@@ -75,22 +75,24 @@ class DQNAgent:
             action id
         """
         r = np.random.uniform()
-        if deterministic or (self.exploration_type=='random' and r > self.epsilon):
+        if deterministic or (self.exploration_type=='random' and r < self.epsilon):
             # TODO: take greedy action (argmax)
-            state = state[np.newaxis,...]
-            a_pred = self.Q.predict(self.sess, state)
+            a_pred = self.Q.predict(self.sess, [state])
             action_id = np.argmax(a_pred)
         else:
             # TODO: sample random action
             # Hint for the exploration in CarRacing: sampling the action from a uniform distribution will probably not work. 
             # You can sample the agents actions with different probabilities (need to sum up to 1) so that the agent will prefer to accelerate or going straight.
             # To see how the agent explores, turn the rendering in the training on and look what the agent is doing.
-            if self.exploration_type=='e-annealing':
-                raise NotImplementedError
+            if self.exploration_type=='e-annealing' and r > self.epsilon:
+                a_pred = self.Q.predict(self.sess, [state])
+                action_id = np.argmax(a_pred)
+
+                if self.epsilon > 0.05:
+                    self.epsilon *= 0.995
             elif self.exploration_type=='boltzmann':
-                state = state[np.newaxis, ...]
                 tau = 0.5
-                action_id = self.Q.boltzmann(self.sess, state, tau)
+                action_id = self.Q.boltzmann(self.sess, [state], tau)
             else:
                 action_id = np.random.randint(0, self.num_actions)
           
