@@ -35,7 +35,6 @@ class ReplayBuffer:
             self._data.dones[index] = done
             self.buffer_index += 1
             self.buffer_index %= self.buffer_size
-        #self._check_capacity()
 
     def next_batch(self, batch_size):
         """
@@ -49,13 +48,3 @@ class ReplayBuffer:
         batch_dones = np.array([self._data.dones[i] for i in batch_indices])
         return batch_states, batch_actions, batch_next_states, batch_rewards, batch_dones
 
-    # checks replay buffer for free capacity to add new items
-    def _check_capacity(self):
-        num_states = len(self._data.states)
-        if num_states > self.buffer_size:
-            num_delete = int(num_states - self.buffer_size)
-            self._data.states = self._data.states[num_delete:]
-            self._data.actions = self._data.actions[num_delete:]
-            self._data.next_states = self._data.next_states[num_delete:]
-            self._data.rewards = self._data.rewards[num_delete:]
-            self._data.dones = self._data.dones[num_delete:]

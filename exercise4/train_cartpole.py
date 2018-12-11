@@ -24,7 +24,7 @@ def run_episode(env, agent, deterministic, do_training=True, rendering=True, max
         next_state, reward, terminal, info = env.step(action_id)
 
         if do_training:  
-            agent.train(state, action_id, next_state, reward, terminal)
+            loss = agent.train(state, action_id, next_state, reward, terminal)
         stats.step(reward, action_id)
 
         state = next_state
@@ -52,7 +52,7 @@ def train_online(env, agent, num_episodes, model_dir="./models_cartpole", tensor
     for i in range(num_episodes):
         print("episode: ", i)
         stats = run_episode(env, agent, deterministic=False, do_training=True)
-        tensorboard.write_episode_data(i, eval_dict={  "episode_reward" : stats.episode_reward, 
+        tensorboard.write_episode_data(i, eval_dict={"episode_reward" : stats.episode_reward,
                                                                 "a_0" : stats.get_action_usage(0),
                                                                 "a_1" : stats.get_action_usage(1)})
 
@@ -60,7 +60,9 @@ def train_online(env, agent, num_episodes, model_dir="./models_cartpole", tensor
         # check its performance with greedy actions only. You can also use tensorboard to plot the mean episode reward.
         if i % 100 == 0:
             stats = run_episode(env, agent, deterministic=True, do_training=False)
-            #tensorboard.write_episode_data(i, eval_dict={"loss": stats.episode_loss})
+            tensorboard.write_episode_data(i, eval_dict={"episode_reward": stats.episode_reward,
+                                                         "a_0": stats.get_action_usage(0),
+                                                         "a_1": stats.get_action_usage(1)})
        
         # store model every 100 episodes and in the end.
         if i % 1000 == 0 or i >= (num_episodes - 1):
