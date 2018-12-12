@@ -125,6 +125,6 @@ if __name__ == "__main__":
     Q = CNN(hl, num_actions)
     Q_target = CNNTargetNetwork(hl, num_actions)
     agent = DQNAgent(Q, Q_target, num_actions, exploration_type='e-annealing', #'boltzmann'
-                     act_random_probability=[1/9, 2/9, 2/9, 3/9, 1/9])
+                     act_random_probability=[1, 2, 2, 5, 1])
     
     train_online(env, agent, num_episodes=1000, max_timesteps=10000, history_length=hl, model_dir="./models_carracing")
