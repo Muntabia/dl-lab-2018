@@ -8,11 +8,12 @@ import gym
 from dqn.dqn_agent import DQNAgent
 from dqn.networks import CNN, CNNTargetNetwork
 from tensorboard_evaluation import *
+import matplotlib.pyplot as plt
 import itertools as it
 from utils import EpisodeStats
 import utils
 
-def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, rendering=False, max_timesteps=1000, history_length=0):
+def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, rendering=False, max_timesteps=10000, history_length=0):
     """
     This methods runs one episode for a gym environment. 
     deterministic == True => agent executes only greedy actions according the Q function approximator (no random actions).
@@ -84,11 +85,11 @@ def train_online(env, agent, num_episodes, max_timesteps, history_length=0, mode
     tensorboard = Evaluation(os.path.join(tensorboard_dir, "train"), ["episode_reward", "straight", "left", "right", "accel", "brake"])
 
     for i in range(num_episodes):
-        print("epsiode %d" % i)
+        print("episode %d" % i)
 
         # Hint: you can keep the episodes short in the beginning by changing max_timesteps (otherwise the car will spend most of the time out of the track)
-       
-        stats = run_episode(env, agent, max_timesteps=max_timesteps, deterministic=False, do_training=True)
+        max_timesteps_reduced = max_timesteps * i / num_episodes
+        stats = run_episode(env, agent, max_timesteps=max_timesteps_reduced, deterministic=False, do_training=True)
 
         tensorboard.write_episode_data(i, eval_dict={ "episode_reward" : stats.episode_reward, 
                                                       "straight" : stats.get_action_usage(utils.STRAIGHT),
@@ -100,7 +101,7 @@ def train_online(env, agent, num_episodes, max_timesteps, history_length=0, mode
 
         # TODO: evaluate agent with deterministic actions from time to time
         if i % 10 == 0:
-            stats = run_episode(env, agent, max_timesteps=max_timesteps, deterministic=True, do_training=False)
+            stats = run_episode(env, agent, max_timesteps=1000, deterministic=True, do_training=False)
 
         if i % 100 == 0 or (i >= num_episodes - 1):
             agent.saver.save(agent.sess, os.path.join(model_dir, "dqn_agent.ckpt")) 
@@ -108,7 +109,10 @@ def train_online(env, agent, num_episodes, max_timesteps, history_length=0, mode
     tensorboard.close_session()
 
 def state_preprocessing(state):
-    return utils.rgb2gray(state).reshape(96, 96) / 255.0
+    gray = utils.rgb2gray(state).reshape(96, 96) / 255.0
+    plt.imshow(gray, cmap=plt.get_cmap('gray'))
+    plt.show()
+    return gray
 
 if __name__ == "__main__":
 
