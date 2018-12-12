@@ -35,13 +35,13 @@ def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, ren
     state = state_preprocessing(state)
     image_hist.extend([state] * (history_length + 1))
     state = np.array(image_hist).reshape(96, 96, history_length + 1)
-    
     while True:
         
         if step < 48:
             step += 1
+            env.step(utils.id_to_action(0))
             continue #skip intro zoom frames
-
+        
         # TODO: get action_id from agent
         # Hint: adapt the probabilities of the 5 actions for random sampling so that the agent explores properly. 
         action_id = agent.act(state, deterministic=False)
@@ -56,8 +56,8 @@ def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, ren
             if rendering:
                 env.render()
 
-            if terminal: 
-                 break
+            if terminal:
+                break
 
         next_state = state_preprocessing(next_state)
         image_hist.append(next_state)
@@ -71,7 +71,7 @@ def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, ren
 
         state = next_state
         
-        if terminal or (step * (skip_frames + 1)) > max_timesteps : 
+        if terminal or (step * (skip_frames + 1)) > max_timesteps:
             break
 
         step += 1
@@ -79,22 +79,25 @@ def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, ren
     return stats
 
 
-def train_online(env, agent, num_episodes, max_timesteps, history_length=0, model_dir="./models_carracing", tensorboard_dir="./tensorboard"):
+def train_online(env, agent, num_episodes, max_timesteps, history_length=0, model_dir="./models_carracing",
+                 tensorboard_dir="./tensorboard"):
    
     if not os.path.exists(model_dir):
         os.mkdir(model_dir)  
  
     print("... train agent")
-    tensorboard = Evaluation(os.path.join(tensorboard_dir, "train"), ["episode_reward", "straight", "left", "right", "accel", "brake"])
+    tensorboard = Evaluation(os.path.join(tensorboard_dir, "train"),
+                             ["episode_reward", "straight", "left", "right", "accel", "brake"])
 
     for i in range(num_episodes):
         print("episode %d" % i)
 
-        # Hint: you can keep the episodes short in the beginning by changing max_timesteps (otherwise the car will spend most of the time out of the track)
-        max_timesteps_reduced = max_timesteps * i / num_episodes
+        # Hint: you can keep the episodes short in the beginning by changing max_timesteps
+        #(otherwise the car will spend most of the time out of the track)
+        max_timesteps_reduced = int(np.max([500, max_timesteps * i / num_episodes]))
         stats = run_episode(env, agent, max_timesteps=max_timesteps_reduced, deterministic=False, skip_frames=0, do_training=True)
 
-        tensorboard.write_episode_data(i, eval_dict={ "episode_reward" : stats.episode_reward, 
+        tensorboard.write_episode_data(i, eval_dict={ "episode_reward" : stats.episode_reward,
                                                       "straight" : stats.get_action_usage(utils.STRAIGHT),
                                                       "left" : stats.get_action_usage(utils.LEFT),
                                                       "right" : stats.get_action_usage(utils.RIGHT),
@@ -125,6 +128,6 @@ if __name__ == "__main__":
     Q = CNN(hl, num_actions)
     Q_target = CNNTargetNetwork(hl, num_actions)
     agent = DQNAgent(Q, Q_target, num_actions, exploration_type='e-annealing', #'boltzmann'
-                     act_random_probability=[1, 2, 2, 5, 1])
+                     discount_factor=1, act_random_probability=[1, 2, 2, 5, 1]) #finite horizon
     
     train_online(env, agent, num_episodes=1000, max_timesteps=10000, history_length=hl, model_dir="./models_carracing")

@@ -93,5 +93,5 @@ if __name__ == "__main__":
     # 2. init DQNAgent (see dqn/dqn_agent.py)
     DQNAgent = DQNAgent(Q, Q_target, num_actions, discount_factor=1, exploration_type='boltzmann')
     # 3. train DQN agent with train_online(...)
-    train_online(env, DQNAgent, num_episodes=2000)
+    train_online(env, DQNAgent, num_episodes=1000)
  
