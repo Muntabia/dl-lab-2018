@@ -64,7 +64,7 @@ def train_online(env, agent, num_episodes, model_dir="./models_cartpole", tensor
                                                          "a_1": stats.get_action_usage(1)})
        
         # store model every 100 episodes and in the end.
-        if i % 1000 == 0 or i >= (num_episodes - 1):
+        if i % 100 == 0 or i >= (num_episodes - 1):
             agent.saver.save(agent.sess, os.path.join(model_dir, "dqn_agent.ckpt"))
    
     tensorboard.close_session()
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     # You find information about cartpole in 
     # https://github.com/openai/gym/wiki/CartPole-v0
     # Hint: CartPole is considered solved when the average reward is greater than or equal to 195.0 over 100 consecutive trials.
-    if(True):
+    if(False):
         env = gym.make("CartPole-v0").unwrapped
         state_dim = 4
         num_actions = 2
@@ -91,5 +91,5 @@ if __name__ == "__main__":
     # 2. init DQNAgent (see dqn/dqn_agent.py)
     DQNAgent = DQNAgent(Q, Q_target, num_actions, exploration_type='boltzmann')
     # 3. train DQN agent with train_online(...)
-    train_online(env, DQNAgent, num_episodes=1000)
+    train_online(env, DQNAgent, num_episodes=2000)
  
