@@ -37,6 +37,10 @@ def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, ren
     state = np.array(image_hist).reshape(96, 96, history_length + 1)
     
     while True:
+        
+        if step < 48:
+            step += 1
+            continue #skip intro zoom frames
 
         # TODO: get action_id from agent
         # Hint: adapt the probabilities of the 5 actions for random sampling so that the agent explores properly. 
