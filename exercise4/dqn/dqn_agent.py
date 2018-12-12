@@ -56,7 +56,7 @@ class DQNAgent:
         else:
             """double q learning"""
             q_actions = np.argmax(self.Q.predict(self.sess, batch_next_states), axis=1)
-            targets = batch_rewards
+            targets = batch_rewards.astype(np.float32)
             targets[np.logical_not(batch_dones)] += self.discount_factor * self.Q_target.predict(self.sess, batch_next_states)[np.arange(self.batch_size), q_actions][np.logical_not(batch_dones)]
         #       2.2 update the Q network
         #              self.Q.update(...)
