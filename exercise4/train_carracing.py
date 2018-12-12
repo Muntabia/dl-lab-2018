@@ -13,7 +13,7 @@ import itertools as it
 from utils import EpisodeStats
 import utils
 
-def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, rendering=False, max_timesteps=10000, history_length=0):
+def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, rendering=True, max_timesteps=10000, history_length=0):
     """
     This methods runs one episode for a gym environment. 
     deterministic == True => agent executes only greedy actions according the Q function approximator (no random actions).
@@ -120,6 +120,7 @@ if __name__ == "__main__":
     # TODO: Define Q network, target network and DQN agent
     Q = CNN(hl, num_actions)
     Q_target = CNNTargetNetwork(hl, num_actions)
-    agent = DQNAgent(Q, Q_target, num_actions, exploration_type='boltzmann')
+    agent = DQNAgent(Q, Q_target, num_actions, exploration_type='e-annealing', #'boltzmann'
+                     act_random_probability=[1/9, 2/9, 2/9, 3/9, 1/9])
     
     train_online(env, agent, num_episodes=1000, max_timesteps=10000, history_length=hl, model_dir="./models_carracing")

@@ -5,7 +5,7 @@ from dqn.replay_buffer import ReplayBuffer
 class DQNAgent:
 
     def __init__(self, Q, Q_target, num_actions, discount_factor=0.99, batch_size=64, epsilon=0.95,
-                 exploration_type='e-annealing', learning_type='dq'):
+                 exploration_type='e-annealing', learning_type='dq', act_random_probability=None):
         """
          Q-Learning agent for off-policy TD control using Function Approximation.
          Finds the optimal greedy policy while following an epsilon-greedy policy.
@@ -22,6 +22,7 @@ class DQNAgent:
         
         self.epsilon = epsilon
         self.exploration_type = exploration_type
+        self.act_random_probability = act_random_probability
         self.learning_type = learning_type
 
         self.num_actions = num_actions
@@ -97,7 +98,10 @@ class DQNAgent:
                 tau = 0.5
                 action_id = self.Q.boltzmann(self.sess, [state], tau)
             else:
-                action_id = np.random.randint(0, self.num_actions)
+                if self.act_random_probability is None:
+                    action_id = np.random.randint(0, self.num_actions)
+                else:
+                    action_id = np.random.choice(np.arange(self.num_actions), p=self.act_random_probability)
         return action_id
 
     def load(self, file_name):
