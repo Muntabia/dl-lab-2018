@@ -10,6 +10,7 @@ from dqn.networks import CNN, CNNTargetNetwork
 from tensorboard_evaluation import *
 import itertools as it
 from utils import EpisodeStats
+import utils
 
 def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, rendering=False, max_timesteps=1000, history_length=0):
     """
@@ -38,12 +39,13 @@ def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, ren
 
         # TODO: get action_id from agent
         # Hint: adapt the probabilities of the 5 actions for random sampling so that the agent explores properly. 
-        # action_id = agent.act(...)
-        # action = your_id_to_action_method(...)
+        action_id = agent.act(state, deterministic=False)
+        action = utils.id_to_action(action_id)
 
         # Hint: frame skipping might help you to get better results.
         reward = 0
-        for _ in range(skip_frames + 1):
+        next_state, r, terminal, info = env.step(action)
+        for _ in range(skip_frames):
             next_state, r, terminal, info = env.step(action)
             reward += r
 
@@ -73,7 +75,7 @@ def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, ren
     return stats
 
 
-def train_online(env, agent, num_episodes, history_length=0, model_dir="./models_carracing", tensorboard_dir="./tensorboard"):
+def train_online(env, agent, num_episodes, max_timesteps, history_length=0, model_dir="./models_carracing", tensorboard_dir="./tensorboard"):
    
     if not os.path.exists(model_dir):
         os.mkdir(model_dir)  
@@ -89,15 +91,16 @@ def train_online(env, agent, num_episodes, history_length=0, model_dir="./models
         stats = run_episode(env, agent, max_timesteps=max_timesteps, deterministic=False, do_training=True)
 
         tensorboard.write_episode_data(i, eval_dict={ "episode_reward" : stats.episode_reward, 
-                                                      "straight" : stats.get_action_usage(STRAIGHT),
-                                                      "left" : stats.get_action_usage(LEFT),
-                                                      "right" : stats.get_action_usage(RIGHT),
-                                                      "accel" : stats.get_action_usage(ACCELERATE),
-                                                      "brake" : stats.get_action_usage(BRAKE)
+                                                      "straight" : stats.get_action_usage(utils.STRAIGHT),
+                                                      "left" : stats.get_action_usage(utils.LEFT),
+                                                      "right" : stats.get_action_usage(utils.RIGHT),
+                                                      "accel" : stats.get_action_usage(utils.ACCELERATE),
+                                                      "brake" : stats.get_action_usage(utils.BRAKE)
                                                       })
 
         # TODO: evaluate agent with deterministic actions from time to time
-        # ...
+        if i % 10 == 0:
+            stats = run_episode(env, agent, max_timesteps=max_timesteps, deterministic=True, do_training=False)
 
         if i % 100 == 0 or (i >= num_episodes - 1):
             agent.saver.save(agent.sess, os.path.join(model_dir, "dqn_agent.ckpt")) 
@@ -105,13 +108,17 @@ def train_online(env, agent, num_episodes, history_length=0, model_dir="./models
     tensorboard.close_session()
 
 def state_preprocessing(state):
-    return rgb2gray(state).reshape(96, 96) / 255.0
+    return utils.rgb2gray(state).reshape(96, 96) / 255.0
 
 if __name__ == "__main__":
 
     env = gym.make('CarRacing-v0').unwrapped
-    
+    hl = 0
+    num_actions = 5
+
     # TODO: Define Q network, target network and DQN agent
-    # ...
+    Q = CNN(hl, num_actions)
+    Q_target = CNNTargetNetwork(hl, num_actions)
+    agent = DQNAgent(Q, Q_target, num_actions, exploration_type='boltzmann')
     
-    train_online(env, agent, num_episodes=1000, history_length=0, model_dir="./models_carracing")
+    train_online(env, agent, num_episodes=1000, max_timesteps=10000, history_length=hl, model_dir="./models_carracing")
