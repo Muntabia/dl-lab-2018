@@ -29,7 +29,7 @@ def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, ren
     state = env.reset()
 
     # fix bug of corrupted states without rendering in gym environment
-    env.viewer.window.dispatch_events() 
+    env.viewer.window.dispatch_events()
 
     # append image history to first state
     state = state_preprocessing(state)
@@ -89,7 +89,7 @@ def train_online(env, agent, num_episodes, max_timesteps, history_length=0, mode
 
         # Hint: you can keep the episodes short in the beginning by changing max_timesteps (otherwise the car will spend most of the time out of the track)
         max_timesteps_reduced = max_timesteps * i / num_episodes
-        stats = run_episode(env, agent, max_timesteps=max_timesteps_reduced, deterministic=False, do_training=True)
+        stats = run_episode(env, agent, max_timesteps=max_timesteps_reduced, deterministic=False, skip_frames=0, do_training=True)
 
         tensorboard.write_episode_data(i, eval_dict={ "episode_reward" : stats.episode_reward, 
                                                       "straight" : stats.get_action_usage(utils.STRAIGHT),
@@ -110,8 +110,6 @@ def train_online(env, agent, num_episodes, max_timesteps, history_length=0, mode
 
 def state_preprocessing(state):
     gray = utils.rgb2gray(state).reshape(96, 96) / 255.0
-    plt.imshow(gray, cmap=plt.get_cmap('gray'))
-    plt.show()
     return gray
 
 if __name__ == "__main__":
