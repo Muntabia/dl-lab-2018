@@ -45,8 +45,7 @@ def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, ren
 
         # Hint: frame skipping might help you to get better results.
         reward = 0
-        next_state, r, terminal, info = env.step(action)
-        for _ in range(skip_frames):
+        for _ in range(skip_frames + 1):
             next_state, r, terminal, info = env.step(action)
             reward += r
 
