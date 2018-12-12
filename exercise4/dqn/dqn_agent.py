@@ -5,7 +5,7 @@ from dqn.replay_buffer import ReplayBuffer
 class DQNAgent:
 
     def __init__(self, Q, Q_target, num_actions, discount_factor=0.99, batch_size=64, epsilon=0.95,
-                 exploration_type='e-annealing'):
+                 exploration_type='e-annealing', learning_type='dq'):
         """
          Q-Learning agent for off-policy TD control using Function Approximation.
          Finds the optimal greedy policy while following an epsilon-greedy policy.
@@ -22,6 +22,7 @@ class DQNAgent:
         
         self.epsilon = epsilon
         self.exploration_type = exploration_type
+        self.learning_type = learning_type
 
         self.num_actions = num_actions
         self.batch_size = batch_size
@@ -48,7 +49,7 @@ class DQNAgent:
         batch_states, batch_actions, batch_next_states, batch_rewards, batch_dones = self.replay_buffer.next_batch(self.batch_size)
         #       2.1 compute td targets: 
         #              td_target =  reward + discount * argmax_a Q_target(next_state_batch, a)
-        if(False):
+        if self.learning_type == 'q':
             """q learning"""
             targets = batch_rewards.astype(np.float32)
             targets[np.logical_not(batch_dones)] += self.discount_factor * np.max(self.Q_target.predict(self.sess, batch_next_states), axis=1)[np.logical_not(batch_dones)]
