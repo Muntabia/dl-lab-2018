@@ -117,19 +117,7 @@ class CNN:
         self.targets_ = tf.placeholder(tf.float32, shape=[None])  # The TD target value
         self.tau_ = tf.placeholder(shape=None, dtype=tf.float32)  # needed for Boltzmann exploration
 
-        # network
-        conv1 = tf.layers.conv2d(self.states_, filters=16, kernel_size=16, strides=2)
-        #conv1_drop = tf.layers.dropout(conv1, rate=0.3)
-
-        conv2 = tf.layers.conv2d(conv1, filters=32, kernel_size=8, strides=2)
-        #conv2_drop = tf.layers.dropout(conv2)
-
-        conv3 = tf.layers.conv2d(conv2, filters=64, kernel_size=4, strides=2)
-        #conv3_drop = tf.layers.dropout(conv3)
-
-        flat = tf.layers.flatten(conv3)
-        fc1 = tf.layers.dense(flat, 256, tf.nn.relu)
-        self.predictions = tf.layers.dense(fc1, num_actions)
+        self.predictions = networkA(self.states_, num_actions)
         self.prediction_dist = tf.nn.softmax(self.predictions / self.tau_)
 
         # Get the predictions for the chosen actions only
@@ -176,7 +164,6 @@ class CNN:
         _, loss = sess.run([self.train_op, self.loss], feed_dict)
         return loss
 
-
 class CNNTargetNetwork(CNN):
     """
     Slowly updated target network. Tau indicates the speed of adjustment. If 1,
@@ -200,3 +187,29 @@ class CNNTargetNetwork(CNN):
     def update(self, sess):
         for op in self._associate:
             sess.run(op)
+
+
+#### CNN Networks
+def networkA(states, num_actions):
+	#network
+        conv1 = tf.layers.conv2d(states, filters=16, kernel_size=16, strides=2)
+        #conv1_drop = tf.layers.dropout(conv1, rate=0.3)
+
+        conv2 = tf.layers.conv2d(conv1, filters=32, kernel_size=8, strides=2)
+        #conv2_drop = tf.layers.dropout(conv2)
+
+        conv3 = tf.layers.conv2d(conv2, filters=64, kernel_size=4, strides=2)
+        #conv3_drop = tf.layers.dropout(conv3)
+
+        flat = tf.layers.flatten(conv3)
+        fc1 = tf.layers.dense(flat, 256, tf.nn.relu)
+        return tf.layers.dense(fc1, num_actions)
+
+def networkB(states, num_actions):
+	conv1 = tf.layers.conv2d(states, filters=8, kernel_size=7, activation=tf.nn.relu, stride=3)
+        conv1_pool = tf.layers.max_pooling2d(conv1, pool_size=[2, 2], strides=2)
+        conv2 = tf.layers.conv2d(conv1_pool, filters=16, kernel_size=3, activation=tf.nn.relu)
+        conv2_pool = tf.layers.max_pooling2d(conv2, pool_size=[2, 2], strides=2)
+        flat = tf.layers.flatten(conv2_pool)
+        dense = tf.layers.dense(flat, 256, activation=tf.nn.relu)
+        return tf.layers.dense(fc1, num_actions)
