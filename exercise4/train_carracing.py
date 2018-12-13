@@ -60,6 +60,10 @@ def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, ren
                 break
 
         next_state = state_preprocessing(next_state)
+        if (next_state.sum() > 5250): #track out of sight
+            print('Track gone:', next_state.sum())
+            break
+        
         image_hist.append(next_state)
         image_hist.pop(0)
         next_state = np.array(image_hist).reshape(96, 96, history_length + 1)
@@ -129,6 +133,7 @@ if __name__ == "__main__":
     Q = CNN(hl, num_actions)
     Q_target = CNNTargetNetwork(hl, num_actions)
     agent = DQNAgent(Q, Q_target, num_actions, exploration_type='e-annealing', #'boltzmann'
-                     discount_factor=1, act_random_probability=[1, 2, 2, 10, 1]) #finite horizon
+                     discount_factor=0.95,
+                     act_random_probability=[1, 2, 2, 10, 1]) #finite horizon
     
     train_online(env, agent, num_episodes=1000, max_timesteps=10000, skip_frames=sf, history_length=hl, model_dir="./models_carracing")
