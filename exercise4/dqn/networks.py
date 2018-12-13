@@ -206,7 +206,7 @@ def networkA(states, num_actions):
         return tf.layers.dense(fc1, num_actions)
 
 def networkB(states, num_actions):
-	conv1 = tf.layers.conv2d(states, filters=8, kernel_size=7, activation=tf.nn.relu, stride=3)
+        conv1 = tf.layers.conv2d(states, filters=8, kernel_size=7, activation=tf.nn.relu, stride=3)
         conv1_pool = tf.layers.max_pooling2d(conv1, pool_size=[2, 2], strides=2)
         conv2 = tf.layers.conv2d(conv1_pool, filters=16, kernel_size=3, activation=tf.nn.relu)
         conv2_pool = tf.layers.max_pooling2d(conv2, pool_size=[2, 2], strides=2)
