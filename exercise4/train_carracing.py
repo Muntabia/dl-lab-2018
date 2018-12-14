@@ -104,7 +104,7 @@ def train_online(env, agent, num_episodes, max_timesteps, skip_frames=0, history
         #(otherwise the car will spend most of the time out of the track)
         #max_timesteps_reduced = int(np.max([500, max_timesteps * i / num_episodes]))
         max_timesteps_reduced = max_timesteps
-        drive_manually = i < 5
+        drive_manually = i < 1
         stats = run_episode(env, agent, max_timesteps=max_timesteps_reduced, deterministic=False,
                             skip_frames=skip_frames, do_training=True, manual=drive_manually)
 
@@ -122,7 +122,7 @@ def train_online(env, agent, num_episodes, max_timesteps, skip_frames=0, history
                                                       })
 
         # TODO: evaluate agent with deterministic actions from time to time
-        if i % 10 == 0:
+        if i % 10 == 0 and i != 0:
             stats = run_episode(env, agent, max_timesteps=1000, deterministic=True, do_training=False)
 
         if i % 100 == 0 or (i >= num_episodes - 1):
