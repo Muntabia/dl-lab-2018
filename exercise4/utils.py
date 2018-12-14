@@ -1,4 +1,5 @@
 import numpy as np
+from pyglet.window import key
 
 LEFT = 1
 RIGHT = 2
@@ -33,3 +34,17 @@ def id_to_action(a):
 def rgb2gray(rgb):
     gray = np.dot(rgb[..., :3], [0.299, 0.587, 0.114])
     return gray
+
+
+#manual driving
+manual_action = 3
+def key_press(k, mod):
+    global manual_action
+    if k == key.LEFT:  manual_action = 1
+    if k == key.RIGHT: manual_action = 2
+    if k == key.UP:    manual_action = 3
+    if k == key.DOWN:  manual_action = 4
+
+def key_release(k, mod):
+    global manual_action
+    manual_action = 0

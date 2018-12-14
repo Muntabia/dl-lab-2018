@@ -10,17 +10,16 @@ from dqn.networks import CNN, CNNTargetNetwork
 from tensorboard_evaluation import *
 import matplotlib.pyplot as plt
 import itertools as it
-from utils import EpisodeStats
 import utils
 
-def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, rendering=True, max_timesteps=10000, history_length=0):
+def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, rendering=True, max_timesteps=10000, history_length=0, manual=False):
     """
     This methods runs one episode for a gym environment. 
     deterministic == True => agent executes only greedy actions according the Q function approximator (no random actions).
     do_training == True => train agent
     """
 
-    stats = EpisodeStats()
+    stats = utils.EpisodeStats()
 
     # Save history
     image_hist = []
@@ -28,6 +27,8 @@ def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, ren
     step = 0
     state = env.reset()
 
+    env.viewer.window.on_key_press = utils.key_press
+    env.viewer.window.on_key_release = utils.key_release
     # fix bug of corrupted states without rendering in gym environment
     env.viewer.window.dispatch_events()
 
@@ -36,15 +37,18 @@ def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, ren
     image_hist.extend([state] * (history_length + 1))
     state = np.array(image_hist).reshape(96, 96, history_length + 1)
     while True:
-        
+        #skip intro zoom frames
         if step < 48:
             step += 1
             env.step(utils.id_to_action(0))
-            continue #skip intro zoom frames
+            continue
         
         # TODO: get action_id from agent
-        # Hint: adapt the probabilities of the 5 actions for random sampling so that the agent explores properly. 
-        action_id = agent.act(state, deterministic)
+        # Hint: adapt the probabilities of the 5 actions for random sampling so that the agent explores properly.
+        if do_training and manual:
+            action_id = utils.manual_action
+        else:
+            action_id = agent.act(state, deterministic)
         action = utils.id_to_action(action_id)
 
         # Hint: frame skipping might help you to get better results.
@@ -100,11 +104,13 @@ def train_online(env, agent, num_episodes, max_timesteps, skip_frames=0, history
         #(otherwise the car will spend most of the time out of the track)
         #max_timesteps_reduced = int(np.max([500, max_timesteps * i / num_episodes]))
         max_timesteps_reduced = max_timesteps
-        stats = run_episode(env, agent, max_timesteps=max_timesteps_reduced, deterministic=False, skip_frames=skip_frames, do_training=True)
+        drive_manually = i < 5
+        stats = run_episode(env, agent, max_timesteps=max_timesteps_reduced, deterministic=False,
+                            skip_frames=skip_frames, do_training=True, manual=drive_manually)
 
-        # epsilon anneal
-        if agent.epsilon > 0.05:
-             agent.epsilon *= 0.995
+        if not drive_manually:
+            # epsilon anneal
+            agent.anneal()
 
         # write data
         tensorboard.write_episode_data(i, eval_dict={ "episode_reward" : stats.episode_reward,
@@ -140,6 +146,6 @@ if __name__ == "__main__":
     Q_target = CNNTargetNetwork(hl, num_actions)
     agent = DQNAgent(Q, Q_target, num_actions, exploration_type='e-annealing', #'boltzmann'
                      discount_factor=0.95,
-                     act_random_probability=[4, 6, 6, 12, 1]) #finite horizon
-    agent.load(os.path.join("./models_carracing", "dqn_agent.ckpt")) #continue training
+                     act_random_probability=[4, 6, 6, 12, 1])
+    #agent.load(os.path.join("./models_carracing", "dqn_agent.ckpt")) #continue training
     train_online(env, agent, num_episodes=1000, max_timesteps=10000, skip_frames=sf, history_length=hl, model_dir="./models_carracing")

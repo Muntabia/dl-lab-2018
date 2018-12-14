@@ -103,5 +103,9 @@ class DQNAgent:
                     action_id = np.random.choice(np.arange(self.num_actions), p=self.act_random_probability)
         return action_id
 
+    def anneal(self):
+        if self.exploration_type=='e-annealing' and agent.epsilon > 0.05:
+            agent.epsilon *= 0.995
+
     def load(self, file_name):
         self.saver.restore(self.sess, file_name)
