@@ -22,7 +22,9 @@ class DQNAgent:
         
         self.epsilon = epsilon
         self.exploration_type = exploration_type
-        self.act_random_probability = act_random_probability / np.sum(act_random_probability)
+        self.act_random_probability = act_random_probability
+        if act_random_probability is not None:
+            self.act_random_probability /= np.sum(act_random_probability)
         self.learning_type = learning_type
 
         self.num_actions = num_actions

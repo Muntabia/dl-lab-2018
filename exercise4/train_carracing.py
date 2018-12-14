@@ -1,7 +1,7 @@
 # export DISPLAY=:0 
 
 import sys
-sys.path.append("../") 
+sys.path.append("../")
 
 import numpy as np
 import gym
@@ -98,8 +98,9 @@ def train_online(env, agent, num_episodes, max_timesteps, skip_frames=0, history
 
         # Hint: you can keep the episodes short in the beginning by changing max_timesteps
         #(otherwise the car will spend most of the time out of the track)
-        max_timesteps_reduced = int(np.max([500, max_timesteps * i / num_episodes]))
-        stats = run_episode(env, agent, max_timesteps=max_timesteps_reduced, deterministic=False,skip_frames=skip_frames, do_training=True)
+        #max_timesteps_reduced = int(np.max([500, max_timesteps * i / num_episodes]))
+        max_timesteps_reduced = max_timesteps
+        stats = run_episode(env, agent, max_timesteps=max_timesteps_reduced, deterministic=False, skip_frames=skip_frames, do_training=True)
 
         tensorboard.write_episode_data(i, eval_dict={ "episode_reward" : stats.episode_reward,
                                                       "straight" : stats.get_action_usage(utils.STRAIGHT),
@@ -134,6 +135,6 @@ if __name__ == "__main__":
     Q_target = CNNTargetNetwork(hl, num_actions)
     agent = DQNAgent(Q, Q_target, num_actions, exploration_type='e-annealing', #'boltzmann'
                      discount_factor=0.95,
-                     act_random_probability=[1, 2, 2, 10, 1]) #finite horizon
+                     act_random_probability=[4, 6, 6, 12, 1]) #finite horizon
     
     train_online(env, agent, num_episodes=1000, max_timesteps=10000, skip_frames=sf, history_length=hl, model_dir="./models_carracing")
