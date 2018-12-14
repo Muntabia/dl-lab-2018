@@ -37,7 +37,7 @@ def rgb2gray(rgb):
 
 
 #manual driving
-manual_action = 3
+manual_action = 0
 def key_press(k, mod):
     global manual_action
     if k == key.LEFT:  manual_action = 1

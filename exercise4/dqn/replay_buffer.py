@@ -34,11 +34,11 @@ class ReplayBuffer:
                 print('Replay Buffer Full')
         else:
             self.index = int(self.index)
-            self._data.states[index] = state
-            self._data.actions[index] = action
-            self._data.next_states[index] = next_state
-            self._data.rewards[index] = reward
-            self._data.dones[index] = done
+            self._data.states[self.index] = state
+            self._data.actions[self.index] = action
+            self._data.next_states[self.index] = next_state
+            self._data.rewards[self.index] = reward
+            self._data.dones[self.index] = done
             self.index += 1
             self.index %= self.size
 
