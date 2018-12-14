@@ -72,7 +72,7 @@ def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, ren
         image_hist.pop(0)
         next_state = np.array(image_hist).reshape(96, 96, history_length + 1)
 
-        if do_training:
+        if do_training and not manual:
             agent.train(state, action_id, next_state, reward, terminal)
 
         stats.step(reward, action_id)
@@ -104,7 +104,7 @@ def train_online(env, agent, num_episodes, max_timesteps, skip_frames=0, history
         #(otherwise the car will spend most of the time out of the track)
         #max_timesteps_reduced = int(np.max([500, max_timesteps * i / num_episodes]))
         max_timesteps_reduced = max_timesteps
-        drive_manually = i < 1
+        drive_manually = i < 10
         stats = run_episode(env, agent, max_timesteps=max_timesteps_reduced, deterministic=False,
                             skip_frames=skip_frames, do_training=True, manual=drive_manually)
 

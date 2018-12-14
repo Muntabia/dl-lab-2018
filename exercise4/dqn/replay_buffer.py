@@ -9,32 +9,38 @@ class ReplayBuffer:
     # TODO: implement a capacity for the replay buffer (FIFO, capacity: 1e5 - 1e6)
 
     # Replay buffer for experience replay. Stores transitions.
-    def __init__(self, size=50e4):
+    def __init__(self, size=1e5//2):
         self._data = namedtuple("ReplayBuffer", ["states", "actions", "next_states", "rewards", "dones"])
         self._data = self._data(states=[], actions=[], next_states=[], rewards=[], dones=[])
-        self.buffer_size = size
-        self.buffer_index = 0
+        self.size = size
+        self.index = 0
+        self.full = False
 
     def add_transition(self, state, action, next_state, reward, done):
         """
         This method adds a transition to the replay buffer.
         If the buffer is full, first added actions will be deleted.
         """
-        if len(self._data.states) < self.buffer_size:
+        if not self.full:
             self._data.states.append(state)
             self._data.actions.append(action)
             self._data.next_states.append(next_state)
             self._data.rewards.append(reward)
             self._data.dones.append(done)
+            self.index += 1
+            if self.index >= self.size:
+                self.index = 0
+                self.full = True
+                print('Replay Buffer Full')
         else:
-            index = int(self.buffer_index)
+            self.index = int(self.index)
             self._data.states[index] = state
             self._data.actions[index] = action
             self._data.next_states[index] = next_state
             self._data.rewards[index] = reward
             self._data.dones[index] = done
-            self.buffer_index += 1
-            self.buffer_index %= self.buffer_size
+            self.index += 1
+            self.index %= self.size
 
     def next_batch(self, batch_size):
         """
