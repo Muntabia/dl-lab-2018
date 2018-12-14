@@ -44,7 +44,7 @@ def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, ren
         
         # TODO: get action_id from agent
         # Hint: adapt the probabilities of the 5 actions for random sampling so that the agent explores properly. 
-        action_id = agent.act(state, deterministic=False)
+        action_id = agent.act(state, deterministic)
         action = utils.id_to_action(action_id)
 
         # Hint: frame skipping might help you to get better results.
@@ -60,7 +60,7 @@ def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, ren
                 break
 
         next_state = state_preprocessing(next_state)
-        if (next_state.sum() > 5250): #track out of sight
+        if do_training and (next_state.sum() > 5250): #track out of sight
             print('Track gone:', next_state.sum())
             break
         
@@ -136,5 +136,5 @@ if __name__ == "__main__":
     agent = DQNAgent(Q, Q_target, num_actions, exploration_type='e-annealing', #'boltzmann'
                      discount_factor=0.95,
                      act_random_probability=[4, 6, 6, 12, 1]) #finite horizon
-    
+    agent.load(os.path.join("./models_carracing", "dqn_agent.ckpt")) #continue training
     train_online(env, agent, num_episodes=1000, max_timesteps=10000, skip_frames=sf, history_length=hl, model_dir="./models_carracing")
