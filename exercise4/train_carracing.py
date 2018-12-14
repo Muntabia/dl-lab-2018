@@ -102,6 +102,11 @@ def train_online(env, agent, num_episodes, max_timesteps, skip_frames=0, history
         max_timesteps_reduced = max_timesteps
         stats = run_episode(env, agent, max_timesteps=max_timesteps_reduced, deterministic=False, skip_frames=skip_frames, do_training=True)
 
+        # epsilon anneal
+        if agent.epsilon > 0.05:
+             agent.epsilon *= 0.995
+
+        # write data
         tensorboard.write_episode_data(i, eval_dict={ "episode_reward" : stats.episode_reward,
                                                       "straight" : stats.get_action_usage(utils.STRAIGHT),
                                                       "left" : stats.get_action_usage(utils.LEFT),

@@ -93,9 +93,6 @@ class DQNAgent:
             if self.exploration_type=='e-annealing' and r > self.epsilon:
                 a_pred = self.Q.predict(self.sess, [state])
                 action_id = np.argmax(a_pred)
-
-                if self.epsilon > 0.05:
-                    self.epsilon *= 0.995
             elif self.exploration_type=='boltzmann':
                 tau = 0.5
                 action_id = self.Q.boltzmann(self.sess, [state], tau)
