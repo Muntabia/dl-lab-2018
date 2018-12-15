@@ -192,17 +192,12 @@ class CNNTargetNetwork(CNN):
 #### CNN Networks
 def networkA(states, num_actions):
     #network
-        conv1 = tf.layers.conv2d(states, filters=16, kernel_size=16, strides=2)
-        #conv1_drop = tf.layers.dropout(conv1, rate=0.3)
-
-        conv2 = tf.layers.conv2d(conv1, filters=32, kernel_size=8, strides=2)
-        #conv2_drop = tf.layers.dropout(conv2)
-
-        conv3 = tf.layers.conv2d(conv2, filters=64, kernel_size=4, strides=2)
-        #conv3_drop = tf.layers.dropout(conv3)
+        conv1 = tf.layers.conv2d(states, filters=32, kernel_size=8, strides=4)
+        conv2 = tf.layers.conv2d(conv1, filters=64, kernel_size=4, strides=2)
+        conv3 = tf.layers.conv2d(conv2, filters=64, kernel_size=3, strides=1)
 
         flat = tf.layers.flatten(conv3)
-        fc1 = tf.layers.dense(flat, 256, tf.nn.relu)
+        fc1 = tf.layers.dense(flat, 512, tf.nn.relu)
         return tf.layers.dense(fc1, num_actions)
 
 def networkB(states, num_actions):
