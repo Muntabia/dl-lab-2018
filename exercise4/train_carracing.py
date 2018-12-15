@@ -113,7 +113,7 @@ def train_online(env, agent, num_episodes, max_timesteps, skip_frames=0, history
             #max_timesteps_reduced = int(np.max([500, max_timesteps * i / num_episodes]))
             max_timesteps_reduced = max_timesteps
             if i == manual_episodes and manual_episodes != 0:
-                print("pretraining on collected data")
+                print("pretraining at collected data")
                 for _ in range(500):
                     agent.train()
         
