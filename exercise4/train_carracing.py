@@ -102,8 +102,8 @@ def train_online(env, agent, num_episodes, max_timesteps, skip_frames=0, history
 
         # Hint: you can keep the episodes short in the beginning by changing max_timesteps
         #(otherwise the car will spend most of the time out of the track)
-        #max_timesteps_reduced = int(np.max([500, max_timesteps * i / num_episodes]))
-        max_timesteps_reduced = max_timesteps
+        max_timesteps_reduced = int(np.max([500, max_timesteps * i / num_episodes]))
+        #max_timesteps_reduced = max_timesteps
         drive_manually = i < 10
         stats = run_episode(env, agent, max_timesteps=max_timesteps_reduced, deterministic=False,
                             skip_frames=skip_frames, do_training=True, manual=drive_manually)
@@ -146,6 +146,6 @@ if __name__ == "__main__":
     Q_target = CNNTargetNetwork(hl, num_actions)
     agent = DQNAgent(Q, Q_target, num_actions, exploration_type='e-annealing', #'boltzmann'
                      discount_factor=0.95,
-                     act_random_probability=[4, 6, 6, 12, 1])
+                     act_random_probability=[12, 6, 6, 12, 1])
     #agent.load(os.path.join("./models_carracing", "dqn_agent.ckpt")) #continue training
     train_online(env, agent, num_episodes=1000, max_timesteps=10000, skip_frames=sf, history_length=hl, model_dir="./models_carracing")
