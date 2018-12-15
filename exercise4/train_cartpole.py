@@ -23,7 +23,8 @@ def run_episode(env, agent, deterministic, do_training=True, rendering=True, max
         action_id = agent.act(state=state, deterministic=deterministic)
         next_state, reward, terminal, info = env.step(action_id)
         if do_training:  
-            loss = agent.train(state, action_id, next_state, reward, terminal)
+            agent.add(state, action_id, next_state, reward, terminal)
+            loss = agent.train()
         stats.step(reward, action_id)
 
         state = next_state

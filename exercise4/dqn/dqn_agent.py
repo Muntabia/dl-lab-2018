@@ -48,7 +48,6 @@ class DQNAgent:
         # TODO:
         # 1. add current transition to replay buffer
         self.replay_buffer.add_transition(state, action, next_state, reward, terminal)
-        #return self.train_step()
 
     def train(self):
         # 2. sample next batch and perform batch update:
