@@ -63,7 +63,7 @@ def train_online(env, agent, num_episodes, model_dir="./models_cartpole", tensor
 
         # TODO: evaluate your agent once in a while for some episodes using run_episode(env, agent, deterministic=True, do_training=False) to 
         # check its performance with greedy actions only. You can also use tensorboard to plot the mean episode reward.
-        if i % 100 == 0:
+        if i % 100 == 0 and i != 0:
             stats = run_episode(env, agent, deterministic=True, do_training=False)
             tensorboard.write_episode_data(i, eval_dict={"episode_reward": stats.episode_reward,
                                                          "a_0": stats.get_action_usage(0),
@@ -81,23 +81,29 @@ if __name__ == "__main__":
     # You find information about cartpole in 
     # https://github.com/openai/gym/wiki/CartPole-v0
     # Hint: CartPole is considered solved when the average reward is greater than or equal to 195.0 over 100 consecutive trials.
-    game = 2  # which game? cartpole == 1 or mountaincar == 2
+    game = 1  # which game? cartpole == 1 or mountaincar == 2
 
     if game == 1:
         env = gym.make("CartPole-v0").unwrapped
         state_dim = 4
         num_actions = 2
+        episodes = 1500
+        exploration ='boltzmann'
     else:
         env = gym.make("MountainCar-v0").unwrapped
         state_dim = 2
         num_actions = 3
+        episodes = 1000
+        exploration ='e-annealing'
     
     # TODO: 
     # 1. init Q network and target network (see dqn/networks.py)
     Q = NeuralNetwork(state_dim, num_actions)
     Q_target = TargetNetwork(state_dim, num_actions)
     # 2. init DQNAgent (see dqn/dqn_agent.py)
-    DQNAgent = DQNAgent(Q, Q_target, num_actions, discount_factor=1, exploration_type='boltzmann')
+    DQNAgent = DQNAgent(Q, Q_target, num_actions, replay_buffer_size=1e6,
+                        #discount_factor=1,
+                        exploration_type=exploration)
     # 3. train DQN agent with train_online(...)
-    train_online(env, DQNAgent, num_episodes=1000)
+    train_online(env, DQNAgent, num_episodes=episodes)
  

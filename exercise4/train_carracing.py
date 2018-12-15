@@ -99,7 +99,7 @@ def train_online(env, agent, num_episodes, max_timesteps, skip_frames=0, history
     tensorboard = Evaluation(os.path.join(tensorboard_dir, "train"),
                              ["episode_reward", "straight", "left", "right", "accel", "brake"])
 
-    manual_episodes = 1
+    manual_episodes = 0
 
     for i in range(num_episodes):
         print("episode %d" % i)
