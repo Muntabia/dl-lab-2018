@@ -65,7 +65,7 @@ def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, ren
 
         next_state = state_preprocessing(next_state)
         if do_training and (next_state.sum() > 5250): #track out of sight
-            print('Track gone:', next_state.sum())
+            print('Track gone; finish this episode')
             break
         
         image_hist.append(next_state)
