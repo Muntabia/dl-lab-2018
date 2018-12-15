@@ -72,8 +72,10 @@ def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, ren
         image_hist.pop(0)
         next_state = np.array(image_hist).reshape(96, 96, history_length + 1)
 
-        if do_training and not manual:
-            agent.train(state, action_id, next_state, reward, terminal)
+        if do_training:
+            agent.add(state, action_id, next_state, reward, terminal)
+            if not manual:
+                agent.train()
 
         stats.step(reward, action_id)
 
@@ -97,17 +99,24 @@ def train_online(env, agent, num_episodes, max_timesteps, skip_frames=0, history
     tensorboard = Evaluation(os.path.join(tensorboard_dir, "train"),
                              ["episode_reward", "straight", "left", "right", "accel", "brake"])
 
+    manual_episodes = 1
+
     for i in range(num_episodes):
         print("episode %d" % i)
 
-        drive_manually = i < 10
+        drive_manually = i < manual_episodes
         # Hint: you can keep the episodes short in the beginning by changing max_timesteps
         #(otherwise the car will spend most of the time out of the track)
         if drive_manually:
             max_timesteps_reduced = max_timesteps
         else:
-            max_timesteps_reduced = int(np.max([500, max_timesteps * i / num_episodes]))
-        #
+            #max_timesteps_reduced = int(np.max([500, max_timesteps * i / num_episodes]))
+            max_timesteps_reduced = max_timesteps
+            if i == manual_episodes and manual_episodes != 0:
+                print("pretraining on collected data")
+                for _ in range(500):
+                    agent.train()
+        
         stats = run_episode(env, agent, max_timesteps=max_timesteps_reduced, deterministic=False,
                             skip_frames=skip_frames, do_training=True, manual=drive_manually)
 

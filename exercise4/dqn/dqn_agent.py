@@ -40,7 +40,7 @@ class DQNAgent:
 
         self.saver = tf.train.Saver()
 
-    def train(self, state, action, next_state, reward, terminal):
+    def add(self, state, action, next_state, reward, terminal):
         """
         This method stores a transition to the replay buffer and updates the Q networks.
         """
@@ -48,6 +48,9 @@ class DQNAgent:
         # TODO:
         # 1. add current transition to replay buffer
         self.replay_buffer.add_transition(state, action, next_state, reward, terminal)
+        #return self.train_step()
+
+    def train(self):
         # 2. sample next batch and perform batch update:
         batch_states, batch_actions, batch_next_states, batch_rewards, batch_dones = self.replay_buffer.next_batch(self.batch_size)
         #       2.1 compute td targets: 
@@ -81,7 +84,7 @@ class DQNAgent:
             action id
         """
         r = np.random.uniform()
-        if deterministic or (self.exploration_type=='random' and r < self.epsilon):
+        if deterministic or (self.exploration_type != 'boltzmann' and r > self.epsilon):
             # TODO: take greedy action (argmax)
             a_pred = self.Q.predict(self.sess, [state])
             action_id = np.argmax(a_pred)
@@ -90,10 +93,7 @@ class DQNAgent:
             # Hint for the exploration in CarRacing: sampling the action from a uniform distribution will probably not work. 
             # You can sample the agents actions with different probabilities (need to sum up to 1) so that the agent will prefer to accelerate or going straight.
             # To see how the agent explores, turn the rendering in the training on and look what the agent is doing.
-            if self.exploration_type=='e-annealing' and r > self.epsilon:
-                a_pred = self.Q.predict(self.sess, [state])
-                action_id = np.argmax(a_pred)
-            elif self.exploration_type=='boltzmann':
+            if self.exploration_type=='boltzmann':
                 tau = 0.5
                 action_id = self.Q.boltzmann(self.sess, [state], tau)
             else:
