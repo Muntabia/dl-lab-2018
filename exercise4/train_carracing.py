@@ -100,16 +100,19 @@ def train_online(env, agent, num_episodes, max_timesteps, skip_frames=0, history
     for i in range(num_episodes):
         print("episode %d" % i)
 
+        drive_manually = i < 10
         # Hint: you can keep the episodes short in the beginning by changing max_timesteps
         #(otherwise the car will spend most of the time out of the track)
-        max_timesteps_reduced = int(np.max([500, max_timesteps * i / num_episodes]))
-        #max_timesteps_reduced = max_timesteps
-        drive_manually = i < 10
+        if drive_manually:
+            max_timesteps_reduced = max_timesteps
+        else:
+            max_timesteps_reduced = int(np.max([500, max_timesteps * i / num_episodes]))
+        #
         stats = run_episode(env, agent, max_timesteps=max_timesteps_reduced, deterministic=False,
                             skip_frames=skip_frames, do_training=True, manual=drive_manually)
 
         if not drive_manually:
-            # epsilon anneal
+            # epsilon annealling
             agent.anneal()
 
         # write data
