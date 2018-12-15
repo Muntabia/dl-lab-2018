@@ -5,7 +5,7 @@ from dqn.replay_buffer import ReplayBuffer
 class DQNAgent:
 
     def __init__(self, Q, Q_target, num_actions, discount_factor=0.99, batch_size=64, epsilon=0.95,
-                 exploration_type='e-annealing', learning_type='dq', act_random_probability=None):
+                 exploration_type='e-annealing', learning_type='dq', act_random_probability=None, replay_buffer_size=1e5):
         """
          Q-Learning agent for off-policy TD control using Function Approximation.
          Finds the optimal greedy policy while following an epsilon-greedy policy.
@@ -32,7 +32,7 @@ class DQNAgent:
         self.discount_factor = discount_factor
 
         # define replay buffer
-        self.replay_buffer = ReplayBuffer()
+        self.replay_buffer = ReplayBuffer(replay_buffer_size)
 
         # Start tensorflow session
         self.sess = tf.Session()
