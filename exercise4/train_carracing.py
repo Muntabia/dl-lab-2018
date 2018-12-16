@@ -64,13 +64,15 @@ def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, ren
                 break
 
         next_state = state_preprocessing(next_state)
-        if do_training and (next_state.sum() > 5100): #track out of sight
-            print('Track gone; finish this episode')
-            break
         
         image_hist.append(next_state)
         image_hist.pop(0)
         next_state = np.array(image_hist).reshape(96, 96, history_length + 1)
+
+        if do_training and (next_state[:82, :, -1].sum() > 5000): #track out of sight
+            print('Track gone; finish this episode')
+            agent.add(state, action_id, next_state, reward=-10, terminal=True) #punish
+            break
 
         if do_training:
             agent.add(state, action_id, next_state, reward, terminal)
@@ -99,12 +101,13 @@ def train_online(env, agent, num_episodes, max_timesteps, skip_frames=0, history
     tensorboard = Evaluation(os.path.join(tensorboard_dir, "train"),
                              ["episode_reward", "straight", "left", "right", "accel", "brake"])
 
-    manual_episodes = 1
+    manual_episodes = 0
 
     # load pretrained network
     if use_pretrained:
         if os.path.exists("./models_carracing/pretrained/hl{}".format(history_length)):
             agent.load(os.path.join("./models_carracing/pretrained/hl{}".format(history_length), "dqn_agent.ckpt"))
+            print("pretrained model loaded")
         else:
             print("no suitable pretrained model available, continue without loading model")
 
@@ -114,16 +117,13 @@ def train_online(env, agent, num_episodes, max_timesteps, skip_frames=0, history
         drive_manually = i < manual_episodes
         # Hint: you can keep the episodes short in the beginning by changing max_timesteps
         #(otherwise the car will spend most of the time out of the track)
-        if drive_manually:
-            max_timesteps_reduced = max_timesteps
-        else:
-            max_timesteps_reduced = max_timesteps
+        if not drive_manually:
             if i == manual_episodes and manual_episodes != 0:
                 print("pretraining at collected data")
-                for _ in range(500):
+                for _ in range(1000):
                     agent.train()
         
-        stats = run_episode(env, agent, max_timesteps=max_timesteps_reduced, deterministic=False,
+        stats = run_episode(env, agent, max_timesteps=max_timesteps, deterministic=False,
                             skip_frames=skip_frames, do_training=True, manual=drive_manually)
 
         if not drive_manually:
@@ -164,6 +164,7 @@ if __name__ == "__main__":
     Q_target = CNNTargetNetwork(hl, num_actions)
     agent = DQNAgent(Q, Q_target, num_actions, exploration_type='e-annealing', #'boltzmann'
                      discount_factor=0.95,
+                     epsilon=0.05, #epsilon greedy behaviour, for continued training
                      act_random_probability=[12, 6, 6, 12, 1])
     train_online(env, agent, num_episodes=1000, max_timesteps=10000, skip_frames=sf, history_length=hl,
                  use_pretrained=True, model_dir="./models_carracing")
