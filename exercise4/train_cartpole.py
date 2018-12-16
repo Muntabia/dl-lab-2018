@@ -89,7 +89,7 @@ if __name__ == "__main__":
         num_actions = 2
         episodes = 1500
         e = 1.0
-        decay=0.9999
+        decay=0.999
         exploration = 'e-annealing'
         size = 1e4
     else:
