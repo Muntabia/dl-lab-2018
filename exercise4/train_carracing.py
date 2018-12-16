@@ -64,7 +64,7 @@ def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, ren
                 break
 
         next_state = state_preprocessing(next_state)
-        if do_training and (next_state.sum() > 5250): #track out of sight
+        if do_training and (next_state.sum() > 5100): #track out of sight
             print('Track gone; finish this episode')
             break
         
@@ -99,7 +99,7 @@ def train_online(env, agent, num_episodes, max_timesteps, skip_frames=0, history
     tensorboard = Evaluation(os.path.join(tensorboard_dir, "train"),
                              ["episode_reward", "straight", "left", "right", "accel", "brake"])
 
-    manual_episodes = 0
+    manual_episodes = 1
 
     for i in range(num_episodes):
         print("episode %d" % i)
