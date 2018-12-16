@@ -17,19 +17,19 @@ if __name__ == "__main__":
         env = gym.make("CartPole-v0").unwrapped
         state_dim = 4
         num_actions = 2
-        model = "./models_cartpole"
+        model_dir = "./models_cartpole"
     else:
         env = gym.make("MountainCar-v0").unwrapped
         state_dim = 2
         num_actions = 3
-        model = "./models_mountaincar"
+        model_dir = "./models_mountaincar"
 
     # TODO: load DQN agent
     # ...
     Q = NeuralNetwork(state_dim, num_actions)
     Q_target = TargetNetwork(state_dim, num_actions)
     agent = DQNAgent(Q, Q_target, num_actions)
-    agent.load(os.path.join(model, "dqn_agent.ckpt"))
+    agent.load(os.path.join(model_dir, "dqn_agent.ckpt"))
  
     n_test_episodes = 15
 
