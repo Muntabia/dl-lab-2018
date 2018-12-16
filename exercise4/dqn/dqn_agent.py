@@ -4,7 +4,7 @@ from dqn.replay_buffer import ReplayBuffer
 
 class DQNAgent:
 
-    def __init__(self, Q, Q_target, num_actions, discount_factor=0.99, batch_size=64, epsilon=0.95,
+    def __init__(self, Q, Q_target, num_actions, discount_factor=0.99, batch_size=64, epsilon=0.95, epsilon_min=0.05, epsilon_decay=0.995,
                  exploration_type='e-annealing', learning_type='dq', act_random_probability=None, replay_buffer_size=1e5):
         """
          Q-Learning agent for off-policy TD control using Function Approximation.
@@ -21,6 +21,9 @@ class DQNAgent:
         self.Q_target = Q_target
         
         self.epsilon = epsilon
+        self.epsilon_min = epsilon_min
+        self.epsilon_decay = epsilon_decay
+
         self.exploration_type = exploration_type
         self.act_random_probability = act_random_probability
         if act_random_probability is not None:
@@ -103,8 +106,8 @@ class DQNAgent:
         return action_id
 
     def anneal(self):
-        if self.exploration_type=='e-annealing' and self.epsilon > 0.05:
-            self.epsilon *= 0.995
+        if self.exploration_type=='e-annealing' and self.epsilon > self.epsilon_min:
+            self.epsilon *= self.epsilon_decay
 
     def load(self, file_name):
         self.saver.restore(self.sess, file_name)
