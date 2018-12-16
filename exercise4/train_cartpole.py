@@ -87,14 +87,16 @@ if __name__ == "__main__":
         env = gym.make("CartPole-v0").unwrapped
         state_dim = 4
         num_actions = 2
-        episodes = 1500
-        exploration ='boltzmann'
+        episodes = 2000
+        e = 0.50
+        exploration = 'e-greedy'#'boltzmann'
     else:
         env = gym.make("MountainCar-v0").unwrapped
         state_dim = 2
         num_actions = 3
         episodes = 1000
-        exploration ='e-annealing'
+        e = 0.95
+        exploration = 'e-annealing'
     
     # TODO: 
     # 1. init Q network and target network (see dqn/networks.py)
@@ -103,7 +105,7 @@ if __name__ == "__main__":
     # 2. init DQNAgent (see dqn/dqn_agent.py)
     DQNAgent = DQNAgent(Q, Q_target, num_actions, replay_buffer_size=1e6,
                         #discount_factor=1,
-                        exploration_type=exploration)
+                        exploration_type=exploration, epsilon=e)
     # 3. train DQN agent with train_online(...)
     train_online(env, DQNAgent, num_episodes=episodes)
  
