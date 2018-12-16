@@ -89,8 +89,8 @@ def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, ren
     return stats
 
 
-def train_online(env, agent, num_episodes, max_timesteps, skip_frames=0, history_length=0, model_dir="./models_carracing",
-                 tensorboard_dir="./tensorboard"):
+def train_online(env, agent, num_episodes, max_timesteps, skip_frames=0, history_length=0, use_pretrained=False,
+                 model_dir="./models_carracing", tensorboard_dir="./tensorboard"):
    
     if not os.path.exists(model_dir):
         os.mkdir(model_dir)  
@@ -100,6 +100,13 @@ def train_online(env, agent, num_episodes, max_timesteps, skip_frames=0, history
                              ["episode_reward", "straight", "left", "right", "accel", "brake"])
 
     manual_episodes = 1
+
+    # load pretrained network
+    if use_pretrained:
+        if os.path.exists("./models_carracing/pretrained/hl{}".format(history_length)):
+            agent.load(os.path.join("./models_carracing/pretrained/hl{}".format(history_length), "dqn_agent.ckpt"))
+        else:
+            print("no suitable pretrained model available, continue without loading model")
 
     for i in range(num_episodes):
         print("episode %d" % i)
@@ -159,5 +166,5 @@ if __name__ == "__main__":
     agent = DQNAgent(Q, Q_target, num_actions, exploration_type='e-annealing', #'boltzmann'
                      discount_factor=0.95,
                      act_random_probability=[12, 6, 6, 12, 1])
-    #agent.load(os.path.join("./models_carracing", "dqn_agent.ckpt")) #continue training
-    train_online(env, agent, num_episodes=1000, max_timesteps=10000, skip_frames=sf, history_length=hl, model_dir="./models_carracing")
+    train_online(env, agent, num_episodes=1000, max_timesteps=10000, skip_frames=sf, history_length=hl,
+                 use_pretrained=True, model_dir="./models_carracing")
