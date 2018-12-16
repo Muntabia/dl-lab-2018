@@ -92,6 +92,7 @@ if __name__ == "__main__":
         decay=0.999
         exploration = 'e-annealing'
         size = 1e4
+        model = "./models_cartpole"
     else:
         env = gym.make("MountainCar-v0").unwrapped
         state_dim = 2
@@ -101,6 +102,7 @@ if __name__ == "__main__":
         decay=0.995
         exploration = 'e-annealing'
         size = 1e6
+        model = "./models_mountaincar"
     
     # TODO: 
     # 1. init Q network and target network (see dqn/networks.py)
@@ -110,5 +112,4 @@ if __name__ == "__main__":
     DQNAgent = DQNAgent(Q, Q_target, num_actions, replay_buffer_size=size,
                         exploration_type=exploration, epsilon=e, epsilon_decay=decay)
     # 3. train DQN agent with train_online(...)
-    train_online(env, DQNAgent, num_episodes=episodes)
- 
+    train_online(env, DQNAgent, num_episodes=episodes, model_dir=model)
