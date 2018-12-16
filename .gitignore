@@ -1,2 +1,5 @@
 
 exercise4/.idea/*
+*.pyc
+*.json
+*.CHEFFESPC
