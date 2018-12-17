@@ -5,6 +5,7 @@ from dqn.dqn_agent import DQNAgent
 from tensorboard_evaluation import *
 from dqn.networks import NeuralNetwork, TargetNetwork
 from utils import EpisodeStats
+from start_tensorboard import TensorBoardTool
 
 
 def run_episode(env, agent, deterministic, do_training=True, rendering=True, max_timesteps=1000):
@@ -77,6 +78,10 @@ def train_online(env, agent, num_episodes, model_dir="./models_cartpole", tensor
 
 
 if __name__ == "__main__":
+
+    # start tensorboard without commandline usage
+    tb_tool = TensorBoardTool()
+    tb_tool.run()
 
     # You find information about cartpole in 
     # https://github.com/openai/gym/wiki/CartPole-v0

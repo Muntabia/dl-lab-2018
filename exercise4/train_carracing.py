@@ -10,6 +10,7 @@ from dqn.networks import CNN, CNNTargetNetwork
 from tensorboard_evaluation import *
 import matplotlib.pyplot as plt
 import itertools as it
+from start_tensorboard import TensorBoardTool
 import utils
 
 def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, rendering=True, max_timesteps=10000, history_length=0, manual=False):
@@ -154,6 +155,10 @@ def state_preprocessing(state):
 
 if __name__ == "__main__":
 
+    # start tensorboard without commandline usage
+    tb_tool = TensorBoardTool()
+    tb_tool.run()
+
     env = gym.make('CarRacing-v0').unwrapped
     hl = 0
     sf = 3
@@ -166,5 +171,5 @@ if __name__ == "__main__":
                      discount_factor=0.95,
                      epsilon=0.05, #epsilon greedy behaviour, for continued training
                      act_random_probability=[12, 6, 6, 12, 1])
-    train_online(env, agent, num_episodes=1000, max_timesteps=10000, skip_frames=sf, history_length=hl,
+    train_online(env, agent, num_episodes=300, max_timesteps=10000, skip_frames=sf, history_length=hl,
                  use_pretrained=True, model_dir="./models_carracing")
