@@ -73,7 +73,7 @@ def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, ren
 
         if do_training and (next_state[:82, :, -1].sum() > 5000): #track out of sight
             print('Track gone; finish this episode')
-            agent.add(state, action_id, next_state, reward=-10, terminal=True) #punish
+            agent.add(state, action_id, next_state, reward=-skip_frames, terminal=True) #punish
             break
 
         if do_training:

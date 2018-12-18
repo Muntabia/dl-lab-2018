@@ -11,9 +11,9 @@ np.random.seed(0)
 
 if __name__ == "__main__":
 
-    game = 'cart'
+    game = 2
 
-    if game == 'cart':
+    if game == 1:
         env = gym.make("CartPole-v0").unwrapped
         state_dim = 4
         num_actions = 2
