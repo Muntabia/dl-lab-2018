@@ -13,7 +13,8 @@ import itertools as it
 from start_tensorboard import TensorBoardTool
 import utils
 
-def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, rendering=True, max_timesteps=10000, history_length=0, manual=False):
+def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, rendering=True, max_timesteps=10000,
+                history_length=0, manual=False):
     """
     This methods runs one episode for a gym environment. 
     deterministic == True => agent executes only greedy actions according the Q function approximator (no random actions).
