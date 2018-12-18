@@ -102,6 +102,8 @@ def train_online(env, agent, num_episodes, max_timesteps, skip_frames=0, history
     print("... train agent")
     tensorboard = Evaluation(os.path.join(tensorboard_dir, "train"),
                              ["episode_reward", "straight", "left", "right", "accel", "brake"])
+    tensorboard_eval = Evaluation(os.path.join(tensorboard_dir, "eval"),
+                             ["episode_reward", "straight", "left", "right", "accel", "brake"])
 
     # load pretrained network
     if use_pretrained:
@@ -123,7 +125,7 @@ def train_online(env, agent, num_episodes, max_timesteps, skip_frames=0, history
                 for _ in range(1000):
                     agent.train()
         
-        stats = run_episode(env, agent, max_timesteps=max_timesteps, deterministic=False,
+        stats = run_episode(env, agent, max_timesteps=max_timesteps, deterministic=False, history_length=history_length,
                             skip_frames=skip_frames, do_training=True, manual=drive_manually)
 
         if not drive_manually:
@@ -142,6 +144,13 @@ def train_online(env, agent, num_episodes, max_timesteps, skip_frames=0, history
         # TODO: evaluate agent with deterministic actions from time to time
         if i % 10 == 0 and i != 0:
             stats = run_episode(env, agent, max_timesteps=1000, deterministic=True, do_training=False)
+            tensorboard_eval.write_episode_data(i, eval_dict={"episode_reward": stats.episode_reward,
+                                                         "straight": stats.get_action_usage(utils.STRAIGHT),
+                                                         "left": stats.get_action_usage(utils.LEFT),
+                                                         "right": stats.get_action_usage(utils.RIGHT),
+                                                         "accel": stats.get_action_usage(utils.ACCELERATE),
+                                                         "brake": stats.get_action_usage(utils.BRAKE)
+                                                         })
 
         if i % 100 == 0 or (i >= num_episodes - 1):
             agent.saver.save(agent.sess, os.path.join(model_dir, "dqn_agent.ckpt")) 
@@ -150,6 +159,7 @@ def train_online(env, agent, num_episodes, max_timesteps, skip_frames=0, history
 
 def state_preprocessing(state):
     gray = utils.rgb2gray(state).reshape(96, 96) / 255.0
+    plt.imshow(gray)
     return gray
 
 if __name__ == "__main__":
@@ -159,7 +169,7 @@ if __name__ == "__main__":
     tb_tool.run()
 
     env = gym.make('CarRacing-v0').unwrapped
-    hl = 0
+    hl = 2
     sf = 3
     num_actions = 5
 
@@ -170,4 +180,4 @@ if __name__ == "__main__":
                      discount_factor=0.95,
                      act_random_probability=[12, 6, 6, 12, 1])
     train_online(env, agent, num_episodes=300, max_timesteps=10000, skip_frames=sf, history_length=hl,
-                 use_pretrained=True, model_dir="./models_carracing")
+                 use_pretrained=False, model_dir="./models_carracing")
