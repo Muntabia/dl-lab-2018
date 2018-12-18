@@ -93,7 +93,7 @@ def run_episode(env, agent, deterministic, skip_frames=0,  do_training=True, ren
 
 
 def train_online(env, agent, num_episodes, max_timesteps, skip_frames=0, history_length=0, use_pretrained=False,
-                 model_dir="./models_carracing", tensorboard_dir="./tensorboard"):
+                 warm_start_for_episodes=0, model_dir="./models_carracing", tensorboard_dir="./tensorboard"):
    
     if not os.path.exists(model_dir):
         os.mkdir(model_dir)  
@@ -101,8 +101,6 @@ def train_online(env, agent, num_episodes, max_timesteps, skip_frames=0, history
     print("... train agent")
     tensorboard = Evaluation(os.path.join(tensorboard_dir, "train"),
                              ["episode_reward", "straight", "left", "right", "accel", "brake"])
-
-    manual_episodes = 0
 
     # load pretrained network
     if use_pretrained:
@@ -115,11 +113,11 @@ def train_online(env, agent, num_episodes, max_timesteps, skip_frames=0, history
     for i in range(num_episodes):
         print("episode %d" % i)
 
-        drive_manually = i < manual_episodes
+        drive_manually = i < warm_start_for_episodes
         # Hint: you can keep the episodes short in the beginning by changing max_timesteps
         #(otherwise the car will spend most of the time out of the track)
         if not drive_manually:
-            if i == manual_episodes and manual_episodes != 0:
+            if i == warm_start_for_episodes and warm_start_for_episodes != 0:
                 print("pretraining at collected data")
                 for _ in range(1000):
                     agent.train()
@@ -169,7 +167,6 @@ if __name__ == "__main__":
     Q_target = CNNTargetNetwork(hl, num_actions)
     agent = DQNAgent(Q, Q_target, num_actions, exploration_type='e-annealing', #'boltzmann'
                      discount_factor=0.95,
-                     epsilon=0.05, #epsilon greedy behaviour, for continued training
                      act_random_probability=[12, 6, 6, 12, 1])
     train_online(env, agent, num_episodes=300, max_timesteps=10000, skip_frames=sf, history_length=hl,
                  use_pretrained=True, model_dir="./models_carracing")
