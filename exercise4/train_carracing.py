@@ -169,7 +169,7 @@ if __name__ == "__main__":
     tb_tool.run()
 
     env = gym.make('CarRacing-v0').unwrapped
-    hl = 2
+    hl = 1
     sf = 3
     num_actions = 5
 
@@ -179,5 +179,5 @@ if __name__ == "__main__":
     agent = DQNAgent(Q, Q_target, num_actions, exploration_type='e-annealing', #'boltzmann'
                      discount_factor=0.95,
                      act_random_probability=[12, 6, 6, 12, 1])
-    train_online(env, agent, num_episodes=300, max_timesteps=10000, skip_frames=sf, history_length=hl,
+    train_online(env, agent, num_episodes=1000, max_timesteps=10000, skip_frames=sf, history_length=hl,
                  use_pretrained=False, model_dir="./models_carracing")
