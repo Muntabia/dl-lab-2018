@@ -87,7 +87,7 @@ if __name__ == "__main__":
     # You find information about cartpole in 
     # https://github.com/openai/gym/wiki/CartPole-v0
     # Hint: CartPole is considered solved when the average reward is greater than or equal to 195.0 over 100 consecutive trials.
-    game = 2  # which game? cartpole == 1 or mountaincar == 2
+    game = 1  # which game? cartpole == 1 or mountaincar == 2
 
     if game == 1:
         env = gym.make("CartPole-v0").unwrapped
