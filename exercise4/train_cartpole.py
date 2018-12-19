@@ -94,22 +94,12 @@ if __name__ == "__main__":
         state_dim = 4
         num_actions = 2
         episodes = 1500
-        e = 1.0
-        decay=0.999
-        exploration = 'e-annealing'
-        size = 1e4
-        batch_size = 64
         model_dir = "./models_cartpole"
     else:
         env = gym.make("MountainCar-v0").unwrapped
         state_dim = 2
         num_actions = 3
         episodes = 1000
-        e = 0.1
-        decay=0.995 #unused
-        exploration = 'e-greedy'
-        size = 1e5
-        batch_size = 128
         model_dir = "./models_mountaincar"
     
     # TODO: 
@@ -117,7 +107,9 @@ if __name__ == "__main__":
     Q = NeuralNetwork(state_dim, num_actions)
     Q_target = TargetNetwork(state_dim, num_actions)
     # 2. init DQNAgent (see dqn/dqn_agent.py)
-    DQNAgent = DQNAgent(Q, Q_target, num_actions, replay_buffer_size=size, batch_size=batch_size,
-                        exploration_type=exploration, epsilon=e, epsilon_decay=decay)
+    DQNAgent = DQNAgent(Q, Q_target, num_actions,
+                        replay_buffer_size = 1e4,
+                        epsilon = 1.0,
+                        epsilon_decay = 0.999)
     # 3. train DQN agent with train_online(...)
     train_online(env, DQNAgent, num_episodes=episodes, model_dir=model_dir)
