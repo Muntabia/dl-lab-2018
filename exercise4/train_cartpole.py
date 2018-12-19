@@ -48,6 +48,7 @@ def train_online(env, agent, num_episodes, model_dir="./models_cartpole", tensor
     print("... train agent")
 
     tensorboard = Evaluation(os.path.join(tensorboard_dir, "train"), ["episode_reward", "a_0", "a_1"])
+    tensorboard_eval = Evaluation(os.path.join(tensorboard_dir, "eval"), ["episode_reward", "a_0", "a_1"])
 
     # training
     for i in range(num_episodes):
@@ -66,7 +67,7 @@ def train_online(env, agent, num_episodes, model_dir="./models_cartpole", tensor
         # check its performance with greedy actions only. You can also use tensorboard to plot the mean episode reward.
         if i % 100 == 0 and i != 0:
             stats = run_episode(env, agent, deterministic=True, do_training=False)
-            tensorboard.write_episode_data(i, eval_dict={"episode_reward": stats.episode_reward,
+            tensorboard_eval.write_episode_data(i, eval_dict={"episode_reward": stats.episode_reward,
                                                          "a_0": stats.get_action_usage(0),
                                                          "a_1": stats.get_action_usage(1)})
        
@@ -86,27 +87,19 @@ if __name__ == "__main__":
     # You find information about cartpole in 
     # https://github.com/openai/gym/wiki/CartPole-v0
     # Hint: CartPole is considered solved when the average reward is greater than or equal to 195.0 over 100 consecutive trials.
-    game = 1  # which game? cartpole == 1 or mountaincar == 2
+    game = 2  # which game? cartpole == 1 or mountaincar == 2
 
     if game == 1:
         env = gym.make("CartPole-v0").unwrapped
         state_dim = 4
         num_actions = 2
         episodes = 1500
-        e = 1.0
-        decay=0.999
-        exploration = 'e-annealing'
-        size = 1e4
         model_dir = "./models_cartpole"
     else:
         env = gym.make("MountainCar-v0").unwrapped
         state_dim = 2
         num_actions = 3
         episodes = 1000
-        e = 0.95
-        decay=0.995
-        exploration = 'e-annealing'
-        size = 1e6
         model_dir = "./models_mountaincar"
     
     # TODO: 
@@ -114,7 +107,9 @@ if __name__ == "__main__":
     Q = NeuralNetwork(state_dim, num_actions)
     Q_target = TargetNetwork(state_dim, num_actions)
     # 2. init DQNAgent (see dqn/dqn_agent.py)
-    DQNAgent = DQNAgent(Q, Q_target, num_actions, replay_buffer_size=size,
-                        exploration_type=exploration, epsilon=e, epsilon_decay=decay)
+    DQNAgent = DQNAgent(Q, Q_target, num_actions,
+                        replay_buffer_size = 1e4,
+                        epsilon = 1.0,
+                        epsilon_decay = 0.999)
     # 3. train DQN agent with train_online(...)
     train_online(env, DQNAgent, num_episodes=episodes, model_dir=model_dir)
