@@ -152,7 +152,7 @@ def train_online(env, agent, num_episodes, max_timesteps, skip_frames=0, history
                                                          "brake": stats.get_action_usage(utils.BRAKE)
                                                          })
 
-        if i % 10 == 0 or (i >= num_episodes - 1):
+        if i % 100 == 0 or (i >= num_episodes - 1):
             agent.saver.save(agent.sess, os.path.join(model_dir, "dqn_agent.ckpt")) 
 
     tensorboard.close_session()
