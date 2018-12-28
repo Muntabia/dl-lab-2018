@@ -169,7 +169,7 @@ if __name__ == "__main__":
     tb_tool.run()
 
     env = gym.make('CarRacing-v0').unwrapped
-    hl = 1
+    hl = 0
     sf = 3
     num_actions = 5
 
